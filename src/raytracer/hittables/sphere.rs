@@ -1,13 +1,12 @@
 use crate::raytracer::vec3::Vec3;
-use crate::raytracer::hittable::{Hittable, HitInfo};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::color::Color;
+use crate::raytracer::hittables::hittable::{Hittable, HitInfo};
+use crate::raytracer::materials::material::Material;
 
 pub struct Sphere {
     pub center: Vec3,
-    pub color: Color,
     pub radius: f32,
-    pub reflect_power_value: f32,
+    pub material: Box<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -34,14 +33,5 @@ impl Hittable for Sphere {
         }
         None
     }
-
-    fn get_intersect(&self, rayon: &Ray) -> Option<Vec3> {
-        None
-    }
-
-    fn get_color(&self, rayon: &Ray) -> Color {
-        self.color
-    }
-
-    fn get_reflect_factor(&self, point:Vec3) -> f32 {self.reflect_power_value}
+    fn get_material(&self) -> &Box<dyn Material> { &self.material }
 }

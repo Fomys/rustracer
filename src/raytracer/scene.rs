@@ -1,4 +1,4 @@
-use crate::raytracer::hittable::{Hittable, HitInfo};
+use crate::raytracer::hittables::hittable::{Hittable, HitInfo};
 use crate::raytracer::ray::Ray;
 use crate::raytracer::color::Color;
 use crate::raytracer::vec3::Vec3;
@@ -10,17 +10,17 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn background_color(&self, rayon: Ray) -> Color{
+    pub fn background_color(&self, rayon: &Ray) -> Color{
         Color {r: 0.0, g: 0.0, b: 1.0}
     }
 
-    pub fn trace (&self, rayon: Ray, max_iter: usize) -> Color {
+    pub fn trace (&self, rayon: &Ray, max_iter: usize) -> Color {
         let mut closest_object: Option<&Box<dyn Hittable>> = None;
         let mut closest_hitinfo: HitInfo = HitInfo {distance: std::f32::INFINITY, normal: Vec3::zero(), point:Vec3::zero()};
         for object in self.objects.iter() {
             match object.compute_hit(&rayon) {
                 Some(hitinfo) => {
-                    if(hitinfo.distance < closest_hitinfo.distance) {
+                    if hitinfo.distance < closest_hitinfo.distance {
                         closest_object = Some(object);
                         closest_hitinfo = hitinfo;
                     }
@@ -31,7 +31,7 @@ impl Scene {
 
         match closest_object {
             Some(object) => {
-                let reflection_factor = object.get_reflect_factor(closest_hitinfo.point);
+                /*let reflection_factor = object.get_reflect_factor(closest_hitinfo.point);
 
                 if reflection_factor > 0.001 {
                     if max_iter > 0 {
@@ -47,7 +47,8 @@ impl Scene {
                     } else {
                         return object.get_color(&rayon) * self.ambiant_light * self.ambiant_power;
                     }
-                }
+                }*/
+                return object.get_material().get_color(&closest_hitinfo, self)
             }
             _ => {
 

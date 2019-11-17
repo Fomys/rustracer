@@ -1,6 +1,6 @@
 use crate::raytracer::ray::Ray;
 use crate::raytracer::vec3::Vec3;
-use crate::raytracer::color::Color;
+use crate::raytracer::materials::material::Material;
 
 pub struct HitInfo {
     pub distance: f32,
@@ -9,11 +9,6 @@ pub struct HitInfo {
 }
 
 pub trait Hittable {
-    fn get_reflect_factor(&self, point: Vec3) -> f32;
-
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo>;
-
-    fn get_intersect(&self, rayon: &Ray) -> Option<Vec3>;
-
-    fn get_color(&self, rayon: &Ray) -> Color;
+    fn get_material(&self) -> &Box<dyn Material>;
 }

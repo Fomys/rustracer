@@ -4,12 +4,14 @@ use minifb::{Window, WindowOptions, Key};
 use crate::raytracer::vec3::Vec3;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
-use crate::raytracer::sphere::Sphere;
+use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::color::Color;
 use rand::Rng;
 use std::path::Path;
 use std::fs::File;
 use std::io::BufWriter;
+use std::time::Instant;
+use crate::raytracer::materials;
 
 
 const WIDTH: usize = 800;//1366;
@@ -44,33 +46,58 @@ fn main() {
         ambiant_light: Color {r:1.0, g:1.0, b:1.0},
         ambiant_power: 1.0,
     };
-    
+
+    let plain_red = materials::plain::Plain {
+        color: Color {
+            r: 1.0,
+            g: 0.0,
+            b: 0.0
+        }
+    };
+    let plain_yellow = materials::plain::Plain {
+        color: Color {
+            r: 1.0,
+            g: 1.0,
+            b: 0.0
+        }
+    };
+    let plain_green = materials::plain::Plain {
+        color: Color {
+            r: 0.0,
+            g: 1.0,
+            b: 0.0
+        }
+    };
+    let plain_black = materials::plain::Plain {
+        color: Color {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0
+        }
+    };
+
     let sphere1 = Sphere {
         center: Vec3 {x:-1.5, y:0.5, z:-1.0},
-        color: Color {r:0.0, g:0.0, b:0.0},
         radius: 0.5,
-        reflect_power_value: 0.5,
+        material: Box::new(plain_black),
     };
 
     let sphere2 = Sphere {
         center: Vec3 {x: 0.0, y: 0.75, z: -1.5},
-        color: Color {r:1.0, g:1.0, b:0.0},
         radius: 0.75,
-        reflect_power_value: 0.3,
+        material: Box::new(plain_yellow),
     };
 
     let sphere3 = Sphere {
         center: Vec3 {x:1.5, y:0.5, z:-1.0},
         radius: 0.5,
-        color: Color {r:1.0, g:0.0, b:0.0},
-        reflect_power_value: 0.2,
+        material: Box::new(plain_red),
     };
 
     let sol = Sphere {
         center: Vec3 {x: 0.0, y: -1000.0, z: -1.0},
-        color: Color {r: 0.5, g: 0.2, b: 0.8},
         radius: 1000.0,
-        reflect_power_value: 0.1,
+        material: Box::new(plain_green),
     };
 
     scene.objects.push(Box::new(sphere1));
@@ -83,6 +110,8 @@ fn main() {
     let horizontal = Vec3 { x: 4.0, y: 0.0, z: 0.0 };
     let vertical = Vec3 { x: 0.0, y: 2.0, z: 0.0 };
     let origin = Vec3 { x: 0.0, y: 0.5, z: 0.0 };
+
+    let start = Instant::now();
 
     for i in 0..HEIGHT {
         for j in 0..WIDTH {
@@ -98,7 +127,7 @@ fn main() {
                             v * horizontal +
                             u * vertical
                     };
-                    color = color + scene.trace(rayon, MAX_RECURSIONS);
+                    color = color + scene.trace(&rayon, MAX_RECURSIONS);
                 }
             }
             color = color / (RAY_PER_PIXELS*RAY_PER_PIXELS) as f32;
@@ -106,7 +135,8 @@ fn main() {
         }
         window.update_with_buffer(&buffer).unwrap();
     }
-
+    let duration = start.elapsed();
+    println!("Rendering took {}s", duration.as_secs_f32());
     save_as_png("final.png", WIDTH as u32, HEIGHT as u32, &buffer);
     while window.is_open() && !window.is_key_down(Key::Escape) { window.update(); }
 }
