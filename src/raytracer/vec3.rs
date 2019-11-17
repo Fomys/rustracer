@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub, Mul, Neg};
+use std::ops::{Add, Sub, Mul, Neg, Div};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -8,6 +8,8 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    pub fn zero() -> Vec3 {Vec3{x:0.0, y:0.0, z:0.0}}
+
     pub fn length(&self) -> f32 {
         self.squared_length().sqrt()
     }
@@ -21,6 +23,15 @@ impl Vec3 {
         self.x /= length;
         self.y /= length;
         self.z /= length;
+    }
+
+    pub fn normalized(&self) -> Vec3 {
+        let length = self.length();
+        Vec3 {
+            x:self.x / length,
+            y:self.y / length,
+            z:self.z / length,
+        }
     }
 
     pub fn dot(left: &Vec3, right: &Vec3) -> f32 {
@@ -186,6 +197,18 @@ impl Neg for &Vec3 {
             x: -self.x,
             y: -self.y,
             z: -self.z,
+        }
+    }
+}
+
+impl Div<f32> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, other:f32) -> Vec3 {
+        Vec3 {
+            x: self.x/other,
+            y: self.y/other,
+            z: self.z/other,
         }
     }
 }
