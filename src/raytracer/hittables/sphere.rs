@@ -23,12 +23,12 @@ impl Hittable for Sphere {
             let distance = (-b - sqrt_delta) / a;
             if distance > 0.0 {
                 let point = rayon.point_at(distance);
-                return Some(HitInfo{distance, point, normal: (point - &self.center)})
+                return Some(HitInfo{distance, point, normal: (point - &self.center), rayon})
             }
             let distance = (-b + sqrt_delta) / a;
             if distance > 0.0 {
                 let point = rayon.point_at(distance);
-                return Some(HitInfo{distance, point, normal: (point - &self.center)})
+                return Some(HitInfo{distance, point, normal: (point - &self.center), rayon})
             }
         }
         None

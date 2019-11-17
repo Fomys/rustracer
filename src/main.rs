@@ -54,12 +54,13 @@ fn main() {
             b: 0.0
         }
     };
-    let plain_yellow = materials::plain::Plain {
+    let metal_yellow = materials::metal::Metal {
         color: Color {
             r: 1.0,
             g: 1.0,
             b: 0.0
-        }
+        },
+        reflection_factor: 0.3,
     };
     let plain_green = materials::plain::Plain {
         color: Color {
@@ -68,24 +69,25 @@ fn main() {
             b: 0.0
         }
     };
-    let plain_black = materials::plain::Plain {
+    let metal_black = materials::metal::Metal {
         color: Color {
             r: 0.0,
             g: 0.0,
             b: 0.0
-        }
+        },
+        reflection_factor: 0.7,
     };
 
     let sphere1 = Sphere {
         center: Vec3 {x:-1.5, y:0.5, z:-1.0},
         radius: 0.5,
-        material: Box::new(plain_black),
+        material: Box::new(metal_black),
     };
 
     let sphere2 = Sphere {
         center: Vec3 {x: 0.0, y: 0.75, z: -1.5},
         radius: 0.75,
-        material: Box::new(plain_yellow),
+        material: Box::new(metal_yellow),
     };
 
     let sphere3 = Sphere {

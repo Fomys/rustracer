@@ -8,7 +8,7 @@ pub struct Plain {
 }
 
 impl Material for Plain {
-    fn get_color(&self, hitinfo: &HitInfo, scene: &Scene) -> Color {
+    fn get_color(&self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize) -> Color {
         self.color
     }
 }

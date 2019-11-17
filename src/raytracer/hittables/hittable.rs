@@ -6,6 +6,7 @@ pub struct HitInfo {
     pub distance: f32,
     pub normal: Vec3,
     pub point: Vec3,
+    pub rayon: Ray,
 }
 
 pub trait Hittable {
