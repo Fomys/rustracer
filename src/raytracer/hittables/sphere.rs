@@ -6,7 +6,6 @@ use crate::raytracer::materials::material::Material;
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub material: Box<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -33,5 +32,4 @@ impl Hittable for Sphere {
         }
         None
     }
-    fn get_material(&self) -> &Box<dyn Material> { &self.material }
 }

@@ -4,3 +4,4 @@ pub mod scene;
 pub mod color;
 pub mod hittables;
 pub mod materials;
+pub mod camera;

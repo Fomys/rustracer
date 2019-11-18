@@ -15,7 +15,9 @@ impl Material for Metal {
             if max_iter > 0 {
                 let new_direction = hitinfo.rayon.reflect(&hitinfo.normal).normalized();
                 let other_color = scene.trace(
-                    &Ray {origin: hitinfo.point + 0.1 * new_direction, direction: new_direction},
+                    &Ray {
+                        origin: hitinfo.point + 0.1 * new_direction,
+                        direction: new_direction,},
                     max_iter - 1,
                 );
                 return (self.color * scene.ambiant_light * scene.ambiant_power * (1.0 - self.reflection_factor))

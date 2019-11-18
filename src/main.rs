@@ -12,6 +12,8 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::time::Instant;
 use crate::raytracer::materials;
+use crate::raytracer::hittables::plane::Plane;
+use crate::raytracer::camera::Camera;
 
 
 const WIDTH: usize = 800;//1366;
@@ -47,71 +49,92 @@ fn main() {
         ambiant_power: 1.0,
     };
 
-    let plain_red = materials::plain::Plain {
+    let transparent = Box::new(materials::transparent::Transparent {
         color: Color {
             r: 1.0,
             g: 0.0,
             b: 0.0
-        }
-    };
-    let metal_yellow = materials::metal::Metal {
+        },
+        refractive_index_div: 0.5
+    });
+    let metal_yellow = Box::new(materials::metal::Metal {
         color: Color {
             r: 1.0,
             g: 1.0,
             b: 0.0
         },
         reflection_factor: 0.3,
-    };
-    let plain_green = materials::plain::Plain {
+    });
+    let plain_green = Box::new( materials::plain::Plain {
         color: Color {
             r: 0.0,
             g: 1.0,
             b: 0.0
         }
-    };
-    let metal_black = materials::metal::Metal {
+    });
+    let plain_red = Box::new(materials::plain::Plain {
+        color: Color {
+            r: 1.0,
+            g: 0.0,
+            b: 0.0
+        }
+    });
+    let metal_black = Box::new(materials::metal::Metal {
         color: Color {
             r: 0.0,
             g: 0.0,
             b: 0.0
         },
         reflection_factor: 0.7,
-    };
+    });
+    let metal_green = Box::new(materials::metal::Metal {
+        color: Color {r: 0.0, g: 1.0, b: 0.0},
+        reflection_factor: 0.2
+    });
 
-    let sphere1 = Sphere {
+    let sphere1 = Box::new(Sphere {
         center: Vec3 {x:-1.5, y:0.5, z:-1.0},
         radius: 0.5,
-        material: Box::new(metal_black),
-    };
-
-    let sphere2 = Sphere {
+    });
+    let sphere2 = Box::new(Sphere {
         center: Vec3 {x: 0.0, y: 0.75, z: -1.5},
         radius: 0.75,
-        material: Box::new(metal_yellow),
-    };
-
-    let sphere3 = Sphere {
+    });
+    let sphere3 = Box::new(Sphere {
         center: Vec3 {x:1.5, y:0.5, z:-1.0},
         radius: 0.5,
-        material: Box::new(plain_red),
-    };
-
-    let sol = Sphere {
+    });
+    let sol_sphere = Box::new(Sphere {
         center: Vec3 {x: 0.0, y: -1000.0, z: -1.0},
         radius: 1000.0,
-        material: Box::new(plain_green),
-    };
+    });
+    let sol_plane = Box::new(Plane {
+        origin: Vec3 {
+            x: 0.0,
+            y: -5.0,
+            z: 0.0
+        },
+        normal: Vec3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0
+        },
+    });
 
-    scene.objects.push(Box::new(sphere1));
-    scene.objects.push(Box::new(sphere2));
-    scene.objects.push(Box::new(sphere3));
-
-    scene.objects.push(Box::new(sol));
+    scene.add_object(sphere1, metal_black);
+    scene.add_object(sphere2, metal_yellow);
+    scene.add_object(sphere3, plain_red);
+    scene.add_object(sol_sphere, metal_green);
 
     let lower_left_corner = Vec3 { x: -2.0, y: -0.5, z: -1.0 };
     let horizontal = Vec3 { x: 4.0, y: 0.0, z: 0.0 };
     let vertical = Vec3 { x: 0.0, y: 2.0, z: 0.0 };
-    let origin = Vec3 { x: 0.0, y: 0.5, z: 0.0 };
+    let origin = Vec3 { x: 0.0, y: 0.0, z: 5.0 };
+
+    let camera = Camera::new(origin,
+                             Vec3 {x:0.0, y:0.0, z:1.0},
+                             4.0,
+                             2.0);
 
     let start = Instant::now();
 
@@ -122,13 +145,7 @@ fn main() {
                 for l in 0..RAY_PER_PIXELS {
                     let u: f32 = (i as f32 + rng1[k]) / HEIGHT as f32;
                     let v: f32 = (j as f32 + rng2[l]) / WIDTH as f32;
-                    let rayon: Ray = Ray {
-                        origin,
-                        direction:
-                        lower_left_corner +
-                            v * horizontal +
-                            u * vertical
-                    };
+                    let rayon: Ray = camera.get_ray(v, u);
                     color = color + scene.trace(&rayon, MAX_RECURSIONS);
                 }
             }

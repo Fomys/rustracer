@@ -11,5 +11,4 @@ pub struct HitInfo {
 
 pub trait Hittable {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo>;
-    fn get_material(&self) -> &Box<dyn Material>;
 }
