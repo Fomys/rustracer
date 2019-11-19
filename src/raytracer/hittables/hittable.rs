@@ -1,6 +1,5 @@
+use crate::raytracer::vec::Vec3;
 use crate::raytracer::ray::Ray;
-use crate::raytracer::vec3::Vec3;
-use crate::raytracer::materials::material::Material;
 
 pub struct HitInfo {
     pub distance: f32,
@@ -11,4 +10,5 @@ pub struct HitInfo {
 
 pub trait Hittable {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo>;
+    fn extremums(&self) -> (Vec3, Vec3);
 }

@@ -1,23 +1,32 @@
-mod raytracer;
-
+#![feature(in_band_lifetimes)]
+// Librement inspiré du raytracer de Lynix
 use minifb::{Window, WindowOptions, Key};
-use crate::raytracer::vec3::Vec3;
-use crate::raytracer::ray::Ray;
-use crate::raytracer::scene::Scene;
-use crate::raytracer::hittables::sphere::Sphere;
-use crate::raytracer::color::Color;
 use rand::Rng;
+use crate::raytracer::scene::Scene;
+use crate::raytracer::color::Color;
+use crate::raytracer::materials::material::Material;
+use crate::raytracer::materials::transparent::Transparent;
+use crate::raytracer::materials::metal::Metal;
+use crate::raytracer::materials::plain::Plain;
+use crate::raytracer::hittables::sphere::Sphere;
+use crate::raytracer::hittables::hittable::Hittable;
+use crate::raytracer::hittables::plane::Plane;
+use crate::raytracer::hittables::triangle::Triangle;
+use crate::raytracer::vec::Vec3;
+use crate::raytracer::camera::Camera;
+use std::time::Instant;
 use std::path::Path;
 use std::fs::File;
 use std::io::BufWriter;
-use std::time::Instant;
-use crate::raytracer::materials;
-use crate::raytracer::hittables::plane::Plane;
-use crate::raytracer::camera::Camera;
+use crate::raytracer::ray::Ray;
+
+mod raytracer;
 
 
-const WIDTH: usize = 800;//1366;
-const HEIGHT: usize = 600;//768;
+const WIDTH: usize = 800;
+//1366;
+const HEIGHT: usize = 600;
+//768;
 const RAY_PER_PIXELS: usize = 5;
 const MAX_RECURSIONS: usize = 5;
 
@@ -43,96 +52,70 @@ fn main() {
 
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
 
-    let mut scene = Scene {
-        objects: vec![],
-        ambiant_light: Color {r:1.0, g:1.0, b:1.0},
-        ambiant_power: 1.0,
+    let mut scene: Scene = Scene::new (Color { r: 1.0, g: 1.0, b: 1.0 }, 1.0 );
+
+    let transparent: &dyn Material = &Transparent {
+        color: Color { r: 1.0, g: 0.0, b: 0.0 },
+        refractive_index_div: 0.5,
+    };
+    let metal_yellow: &dyn Material = &Metal {
+        color: Color { r: 1.0, g: 1.0, b: 0.0 },
+        reflection_factor: 0.3,
+    };
+    let plain_green: &dyn Material = &Plain {
+        color: Color { r: 0.0, g: 1.0, b: 0.0 }
+    };
+    let plain_red: &dyn Material = &Plain {
+        color: Color { r: 1.0, g: 0.0, b: 0.0 }
+    };
+    let metal_black: &dyn Material = &Metal {
+        color: Color { r: 0.0, g: 0.0, b: 0.0 },
+        reflection_factor: 0.7,
+    };
+    let metal_green: &dyn Material = &Metal {
+        color: Color { r: 0.0, g: 1.0, b: 0.0 },
+        reflection_factor: 0.2,
     };
 
-    let transparent = Box::new(materials::transparent::Transparent {
-        color: Color {
-            r: 1.0,
-            g: 0.0,
-            b: 0.0
-        },
-        refractive_index_div: 0.5
-    });
-    let metal_yellow = Box::new(materials::metal::Metal {
-        color: Color {
-            r: 1.0,
-            g: 1.0,
-            b: 0.0
-        },
-        reflection_factor: 0.3,
-    });
-    let plain_green = Box::new( materials::plain::Plain {
-        color: Color {
-            r: 0.0,
-            g: 1.0,
-            b: 0.0
-        }
-    });
-    let plain_red = Box::new(materials::plain::Plain {
-        color: Color {
-            r: 1.0,
-            g: 0.0,
-            b: 0.0
-        }
-    });
-    let metal_black = Box::new(materials::metal::Metal {
-        color: Color {
-            r: 0.0,
-            g: 0.0,
-            b: 0.0
-        },
-        reflection_factor: 0.7,
-    });
-    let metal_green = Box::new(materials::metal::Metal {
-        color: Color {r: 0.0, g: 1.0, b: 0.0},
-        reflection_factor: 0.2
-    });
+    let sphere1: &dyn Hittable = &Sphere::new(
+        Vec3 { x: -1.5, y: 0.5, z: -1.0 },
+        0.5,
+    );
+    let sphere2: &dyn Hittable = &Sphere::new(
+        Vec3 { x: 0.0, y: 0.75, z: -1.5 },
+        0.75,
+    );
+    let sphere3: &dyn Hittable = &Sphere::new(
+        Vec3 { x: 1.5, y: 0.5, z: -1.0 },
+        0.5,
+    );
+    let sol_sphere: &dyn Hittable = &Sphere::new(
+        Vec3 { x: 0.0, y: -1000.0, z: -1.0 },
+        1000.0,
+    );
+    let sol_plane: &dyn Hittable = &Plane::new(
+        Vec3 { x: 0.0, y: -5.0, z: 0.0 },
+        Vec3 { x: 0.0, y: 1.0, z: 0.0 }
+        ,);
+    let triangle: &dyn Hittable = &Triangle::new(
+        Vec3 { x: -1.5, y: 0.5, z: -1.0 },
+        Vec3 { x: 1.5, y: 0.5, z: -1.0 },
+        Vec3 { x: -1.5, y: 2.5, z: -1.0 },
+    );
 
-    let sphere1 = Box::new(Sphere {
-        center: Vec3 {x:-1.5, y:0.5, z:-1.0},
-        radius: 0.5,
-    });
-    let sphere2 = Box::new(Sphere {
-        center: Vec3 {x: 0.0, y: 0.75, z: -1.5},
-        radius: 0.75,
-    });
-    let sphere3 = Box::new(Sphere {
-        center: Vec3 {x:1.5, y:0.5, z:-1.0},
-        radius: 0.5,
-    });
-    let sol_sphere = Box::new(Sphere {
-        center: Vec3 {x: 0.0, y: -1000.0, z: -1.0},
-        radius: 1000.0,
-    });
-    let sol_plane = Box::new(Plane {
-        origin: Vec3 {
-            x: 0.0,
-            y: -5.0,
-            z: 0.0
-        },
-        normal: Vec3 {
-            x: 0.0,
-            y: 1.0,
-            z: 0.0
-        },
-    });
-
-    scene.add_object(sphere1, metal_black);
-    scene.add_object(sphere2, metal_yellow);
-    scene.add_object(sphere3, plain_red);
-    scene.add_object(sol_sphere, metal_green);
+    scene.add_primitive(sphere1, metal_black);
+    scene.add_primitive(sphere2, metal_yellow);
+    scene.add_primitive(sphere3, plain_red);
+    scene.add_primitive(sol_plane, metal_green);
+    scene.add_primitive(triangle, plain_red);
 
     let lower_left_corner = Vec3 { x: -2.0, y: -0.5, z: -1.0 };
     let horizontal = Vec3 { x: 4.0, y: 0.0, z: 0.0 };
     let vertical = Vec3 { x: 0.0, y: 2.0, z: 0.0 };
-    let origin = Vec3 { x: 0.0, y: 0.0, z: 5.0 };
+    let origin = Vec3 { x: 0.0, y: 0.0, z: 2.0 };
 
     let camera = Camera::new(origin,
-                             Vec3 {x:0.0, y:0.0, z:1.0},
+                             Vec3 { x: 0.0, y: 0.0, z: 1.0 },
                              4.0,
                              2.0);
 
@@ -149,7 +132,7 @@ fn main() {
                     color = color + scene.trace(&rayon, MAX_RECURSIONS);
                 }
             }
-            color = color / (RAY_PER_PIXELS*RAY_PER_PIXELS) as f32;
+            color = color / (RAY_PER_PIXELS * RAY_PER_PIXELS) as f32;
             buffer[((HEIGHT - i - 1) * WIDTH + j) as usize] = color.to_pixel();
         }
         window.update_with_buffer(&buffer).unwrap();

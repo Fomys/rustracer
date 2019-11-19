@@ -1,4 +1,4 @@
-use crate::raytracer::vec3::Vec3;
+use crate::raytracer::vec::Vec3;
 use crate::raytracer::ray::Ray;
 
 pub struct Camera {
@@ -32,6 +32,6 @@ impl Camera {
         Ray {
             origin: self.position,
             direction: self.left_corner + self.horizontal * x + self.vertical * y,
-        }
+        }.normalized()
     }
 }

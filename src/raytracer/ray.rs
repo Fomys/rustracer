@@ -1,4 +1,4 @@
-use crate::raytracer::vec3::Vec3;
+use crate::raytracer::vec::Vec3;
 #[derive(Debug, Copy, Clone)]
 pub struct Ray {
     pub origin: Vec3,
@@ -29,7 +29,7 @@ impl Ray {
 #[cfg(test)]
 mod tests {
     use crate::raytracer::ray::Ray;
-    use crate::raytracer::vec3::Vec3;
+    use crate::raytracer::vec::Vec3;
 
     #[test]
     fn point_at() {

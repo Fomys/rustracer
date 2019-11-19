@@ -1,0 +1,1 @@
+pub const ZERO: f32 = 0.001;

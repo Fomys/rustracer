@@ -1,9 +1,9 @@
 use crate::raytracer::color::Color;
-use crate::raytracer::materials::material::Material;
+use crate::raytracer::vec::Vec3;
 use crate::raytracer::hittables::hittable::HitInfo;
+use crate::raytracer::materials::material::Material;
 use crate::raytracer::scene::Scene;
 use crate::raytracer::ray::Ray;
-use crate::raytracer::vec3::Vec3;
 
 pub struct Transparent {
     pub color: Color,
