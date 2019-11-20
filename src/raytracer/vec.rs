@@ -1,5 +1,5 @@
 use std::ops::{Add, Sub, Mul, Neg, Div};
-use std::cmp::min;
+
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {

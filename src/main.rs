@@ -27,7 +27,7 @@ const WIDTH: usize = 800;
 //1366;
 const HEIGHT: usize = 600;
 //768;
-const RAY_PER_PIXELS: usize = 5;
+const RAY_PER_PIXELS: usize = 1;
 const MAX_RECURSIONS: usize = 5;
 
 fn main() {
@@ -54,19 +54,19 @@ fn main() {
 
     let mut scene: Scene = Scene::new (Color { r: 1.0, g: 1.0, b: 1.0 }, 1.0 );
 
-    let transparent: &dyn Material = &Transparent {
+    /*let transparent: &dyn Material = &Transparent {
         color: Color { r: 1.0, g: 0.0, b: 0.0 },
         refractive_index_div: 0.5,
-    };
+    };*/
     let metal_yellow: &dyn Material = &Metal {
         color: Color { r: 1.0, g: 1.0, b: 0.0 },
         reflection_factor: 0.3,
     };
-    let plain_green: &dyn Material = &Plain {
+    /*let plain_green: &dyn Material = &Plain {
         color: Color { r: 0.0, g: 1.0, b: 0.0 }
-    };
+    };*/
     let plain_red: &dyn Material = &Plain {
-        color: Color { r: 1.0, g: 0.0, b: 0.0 }
+        color: Color { r: 0.5, g: 0.5, b: 0.0 }
     };
     let metal_black: &dyn Material = &Metal {
         color: Color { r: 0.0, g: 0.0, b: 0.0 },
@@ -77,47 +77,49 @@ fn main() {
         reflection_factor: 0.2,
     };
 
-    let sphere1: &dyn Hittable = &Sphere::new(
+    let sphere1: Box<dyn Hittable> = Box::new(Sphere::new(
         Vec3 { x: -1.5, y: 0.5, z: -1.0 },
         0.5,
-    );
-    let sphere2: &dyn Hittable = &Sphere::new(
+    ));
+    let sphere2: Box<dyn Hittable> = Box::new(Sphere::new(
         Vec3 { x: 0.0, y: 0.75, z: -1.5 },
         0.75,
-    );
-    let sphere3: &dyn Hittable = &Sphere::new(
+    ));
+    let sphere3: Box<dyn Hittable> = Box::new(Sphere::new(
         Vec3 { x: 1.5, y: 0.5, z: -1.0 },
         0.5,
-    );
-    let sol_sphere: &dyn Hittable = &Sphere::new(
+    ));
+    /*let sol_sphere: &dyn Hittable = &Sphere::new(
         Vec3 { x: 0.0, y: -1000.0, z: -1.0 },
         1000.0,
-    );
-    let sol_plane: &dyn Hittable = &Plane::new(
+    );*/
+    let sol_plane: Box<dyn Hittable> = Box::new(Plane::new(
         Vec3 { x: 0.0, y: -5.0, z: 0.0 },
         Vec3 { x: 0.0, y: 1.0, z: 0.0 }
-        ,);
-    let triangle: &dyn Hittable = &Triangle::new(
+        ,));
+    let triangle: Box<dyn Hittable> = Box::new(Triangle::new(
         Vec3 { x: -1.5, y: 0.5, z: -1.0 },
         Vec3 { x: 1.5, y: 0.5, z: -1.0 },
         Vec3 { x: -1.5, y: 2.5, z: -1.0 },
-    );
+    ));
 
-    scene.add_primitive(sphere1, metal_black);
-    scene.add_primitive(sphere2, metal_yellow);
-    scene.add_primitive(sphere3, plain_red);
-    scene.add_primitive(sol_plane, metal_green);
-    scene.add_primitive(triangle, plain_red);
+    //scene.add_primitive(sphere1, metal_black);
+    //scene.add_primitive(sphere2, metal_yellow);
+    //scene.add_primitive(sphere3, plain_red);
+    //scene.add_primitive(sol_plane, metal_green);
+    //scene.add_primitive(triangle, plain_red);
 
-    let lower_left_corner = Vec3 { x: -2.0, y: -0.5, z: -1.0 };
-    let horizontal = Vec3 { x: 4.0, y: 0.0, z: 0.0 };
-    let vertical = Vec3 { x: 0.0, y: 2.0, z: 0.0 };
-    let origin = Vec3 { x: 0.0, y: 0.0, z: 2.0 };
+    scene.load_obj("test2.obj".to_string(), plain_red);
+
+    /*let lower_left_corner = Vec3 { x: -2.0, y: -0.5, z: -1.0 };*/
+    /*let horizontal = Vec3 { x: 4.0, y: 0.0, z: 0.0 };*/
+    /*let vertical = Vec3 { x: 0.0, y: 2.0, z: 0.0 };*/
+    let origin = Vec3 { x: 0.0, y: 20.0, z: 100.0 };
 
     let camera = Camera::new(origin,
                              Vec3 { x: 0.0, y: 0.0, z: 1.0 },
-                             4.0,
-                             2.0);
+                             8.0,
+                             4.0);
 
     let start = Instant::now();
 

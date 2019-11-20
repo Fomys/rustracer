@@ -13,7 +13,7 @@ impl Camera {
         let left_corner = Vec3 {
             x: -fov_horiontal / 2.0,
             y: -fov_vertical / 2.0,
-            z: -1.0
+            z: -10.0
         };
         let horizontal = Vec3 {
             x: fov_horiontal,

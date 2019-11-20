@@ -4,6 +4,9 @@ use crate::raytracer::color::Color;
 use crate::raytracer::vec::Vec3;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::primitive::Primitive;
+use std::fs::File;
+use std::io::{BufReader, BufRead};
+use crate::raytracer::hittables::triangle::Triangle;
 
 pub struct Scene<'a> {
     primitives: Vec<Primitive<'a>>,
@@ -12,6 +15,52 @@ pub struct Scene<'a> {
 }
 
 impl<'a> Scene<'a> {
+    pub fn load_obj(&mut self, filepath: String, material: &'a dyn Material) {
+        let file = match File::open(filepath) {
+            Ok(f) => f,
+            _ => { return },
+        };
+        let mut reader = BufReader::new(file);
+
+        let mut points: Vec<Vec3> = vec![];
+        let mut faces: Vec<(usize, usize, usize)> = vec![];
+        // f v/vt/vn v/vt/vn v/vt/vn v/vt/vn
+        // v x y z w
+        for line in reader.lines() {
+            let text = line.unwrap();
+            let mut words = text.split_whitespace();
+            let carac = words.next();
+            match carac {
+                Some("v") => {
+                    // Coordonnées simples
+                    points.push(Vec3 {
+                        x: words.next().unwrap().parse::<f32>().unwrap(),
+                        y: words.next().unwrap().parse::<f32>().unwrap(),
+                        z: words.next().unwrap().parse::<f32>().unwrap() });
+                }
+                Some("f") => {
+                    // Faces
+                    faces.push((
+                                   words.next().unwrap().split("/").next().unwrap().parse::<usize>().unwrap(),
+                                   words.next().unwrap().split("/").next().unwrap().parse::<usize>().unwrap(),
+                                   words.next().unwrap().split("/").next().unwrap().parse::<usize>().unwrap()));
+                }
+                _ => {}
+            }
+        }
+        println!("{:?}", points);
+        println!("{:?}", faces);
+
+        for (p1, p2, p3) in faces {
+            if p1 <= points.len() || p2 <= points.len() || p3 <= points.len() {
+                let new_triangle: Box<dyn Hittable> = Box::new(Triangle::new(points[p1-1],
+                                                                             points[p2-1], points[p3-1]));
+                self.add_primitive(new_triangle, material);
+            }
+        }
+
+    }
+
     pub fn new(ambiant_light: Color, ambiant_power: f32) -> Scene<'a> {
         Scene {
             primitives: vec![],
@@ -19,8 +68,8 @@ impl<'a> Scene<'a> {
             ambiant_power,
         }
     }
-    /* Non optimisé, ajoute tout dans le même objet */
-    pub fn add_primitive(&mut self, hittable: &'a dyn Hittable, material: &'a dyn Material) {
+
+    pub fn add_primitive(&mut self, hittable: Box<dyn Hittable>, material: &'a dyn Material) {
         let primitive: Primitive = Primitive { hittable, material };
         self.primitives.push(primitive);
     }
