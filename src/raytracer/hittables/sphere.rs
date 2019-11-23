@@ -1,6 +1,6 @@
-use crate::raytracer::vec::Vec3;
-use crate::raytracer::hittables::hittable::{Hittable, HitInfo};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::ray::Ray;
+use crate::raytracer::vec::Vec3;
 
 pub struct Sphere {
     pub center: Vec3,
@@ -11,13 +11,14 @@ pub struct Sphere {
 }
 
 impl Sphere {
+    #[allow(dead_code)]
     pub(crate) fn new(center: Vec3, radius: f32) -> Sphere {
         Sphere {
             center,
             radius: radius,
-            r_2: radius*radius,
-            mincoord: center - Vec3 {x: radius, y: radius, z: radius},
-            maxcoord: center + Vec3 {x: radius, y: radius, z: radius},
+            r_2: radius * radius,
+            mincoord: center - Vec3 { x: radius, y: radius, z: radius },
+            maxcoord: center + Vec3 { x: radius, y: radius, z: radius },
         }
     }
 }
@@ -34,12 +35,24 @@ impl Hittable for Sphere {
             let distance = (-b - sqrt_delta) / a;
             if distance > 0.0 {
                 let point = rayon.point_at(distance);
-                return Some(HitInfo{distance, point, normal: (point - &self.center), rayon: *rayon})
+                return Some(HitInfo {
+                    distance,
+                    point,
+                    normal: (point - &self.center),
+                    rayon: *rayon,
+                    position: (0.0, 0.0),
+                });
             }
             let distance = (-b + sqrt_delta) / a;
             if distance > 0.0 {
                 let point = rayon.point_at(distance);
-                return Some(HitInfo{distance, point, normal: (point - &self.center), rayon: *rayon})
+                return Some(HitInfo {
+                    distance,
+                    point,
+                    normal: (point - &self.center),
+                    rayon: *rayon,
+                    position: (0.0, 0.0),
+                });
             }
         }
         None

@@ -1,14 +1,14 @@
-use crate::raytracer::color::Color;
-use crate::raytracer::materials::material::Material;
+use crate::raytracer::color::{Color, ColorInfo};
 use crate::raytracer::hittables::hittable::HitInfo;
+use crate::raytracer::materials::material::Material;
 use crate::raytracer::scene::Scene;
 
-pub struct Plain {
-    pub color: Color,
-}
+#[derive(Clone)]
+pub struct Plain {}
 
 impl Material for Plain {
-    fn get_color(&self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize) -> Color {
-        self.color
+    #[allow(unused_variables)]
+    fn get_color(&self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize) -> ColorInfo {
+        ColorInfo { color: Color::black(), ratio: 0.0 }
     }
 }

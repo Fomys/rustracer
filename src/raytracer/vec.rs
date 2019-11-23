@@ -1,5 +1,10 @@
-use std::ops::{Add, Sub, Mul, Neg, Div};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
+#[derive(Debug, Clone, Copy)]
+pub struct Vec2<T> {
+    pub x: T,
+    pub y: T,
+}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -10,11 +15,11 @@ pub struct Vec3 {
 
 impl Vec3 {
     pub fn min(a: Vec3, b: Vec3) -> Vec3 {
-        Vec3 {x: a.x.min(a.y), y: a.y.min(b.y), z: a.z.min(b.z)}
+        Vec3 { x: a.x.min(a.y), y: a.y.min(b.y), z: a.z.min(b.z) }
     }
 
     pub fn max(a: Vec3, b: Vec3) -> Vec3 {
-        Vec3 {x: a.x.max(a.y), y: a.y.max(b.y), z: a.z.max(b.z)}
+        Vec3 { x: a.x.max(a.y), y: a.y.max(b.y), z: a.z.max(b.z) }
     }
 
     pub fn zero() -> Vec3 { Vec3 { x: 0.0, y: 0.0, z: 0.0 } }
@@ -52,6 +57,72 @@ impl Vec3 {
             x: left.y * right.z - left.z * right.y,
             y: left.z * right.x - left.x * right.z,
             z: left.x * right.y - left.y * right.x,
+        }
+    }
+}
+
+impl<T: Add<Output=T>> Add for Vec2<T>
+    where T: Add<T, Output=T> {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl<T: Sub<Output=T>> Sub for Vec2<T>
+    where T: Sub<T, Output=T> {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+impl Mul<Vec2<f32>> for f32 {
+    type Output = Vec2<f32>;
+
+    fn mul(self, other: Vec2<f32>) -> Vec2<f32> {
+        Vec2 {
+            x: self * other.x,
+            y: self * other.y,
+        }
+    }
+}
+
+impl Mul<Vec2<usize>> for usize {
+    type Output = Vec2<usize>;
+
+    fn mul(self, other: Vec2<usize>) -> Vec2<usize> {
+        Vec2 {
+            x: self * other.x,
+            y: self * other.y,
+        }
+    }
+}
+
+impl From<Vec2<f32>> for Vec2<usize> {
+    fn from(item: Vec2<f32>) -> Self {
+        Vec2 {
+            x: item.x as usize,
+            y: item.y as usize,
+        }
+    }
+}
+
+impl Mul<Vec2<usize>> for f32 {
+    type Output = Vec2<f32>;
+
+    fn mul(self, other: Vec2<usize>) -> Vec2<f32> {
+        Vec2 {
+            x: self * other.x as f32,
+            y: self * other.y as f32,
         }
     }
 }

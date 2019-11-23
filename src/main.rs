@@ -5,20 +5,20 @@ use rand::Rng;
 use crate::raytracer::scene::Scene;
 use crate::raytracer::color::Color;
 use crate::raytracer::materials::material::Material;
-use crate::raytracer::materials::transparent::Transparent;
-use crate::raytracer::materials::metal::Metal;
 use crate::raytracer::materials::plain::Plain;
-use crate::raytracer::hittables::sphere::Sphere;
-use crate::raytracer::hittables::hittable::Hittable;
-use crate::raytracer::hittables::plane::Plane;
-use crate::raytracer::hittables::triangle::Triangle;
-use crate::raytracer::vec::Vec3;
+use crate::raytracer::vec::{Vec3, Vec2};
 use crate::raytracer::camera::Camera;
 use std::time::Instant;
 use std::path::Path;
 use std::fs::File;
 use std::io::BufWriter;
 use crate::raytracer::ray::Ray;
+use crate::raytracer::textures;
+use crate::raytracer::texture_maps::png_texture_map::PngTextureMap;
+use crate::raytracer::materials::metal::Metal;
+use crate::raytracer::hittables::hittable::Hittable;
+use crate::raytracer::hittables::triangle::Triangle;
+use crate::raytracer::textures::texture::Texture;
 
 mod raytracer;
 
@@ -54,62 +54,34 @@ fn main() {
 
     let mut scene: Scene = Scene::new (Color { r: 1.0, g: 1.0, b: 1.0 }, 1.0 );
 
-    /*let transparent: &dyn Material = &Transparent {
-        color: Color { r: 1.0, g: 0.0, b: 0.0 },
-        refractive_index_div: 0.5,
-    };*/
-    let metal_yellow: &dyn Material = &Metal {
-        color: Color { r: 1.0, g: 1.0, b: 0.0 },
-        reflection_factor: 0.3,
-    };
-    /*let plain_green: &dyn Material = &Plain {
-        color: Color { r: 0.0, g: 1.0, b: 0.0 }
-    };*/
-    let plain_red: &dyn Material = &Plain {
-        color: Color { r: 0.5, g: 0.5, b: 0.0 }
-    };
-    let metal_black: &dyn Material = &Metal {
-        color: Color { r: 0.0, g: 0.0, b: 0.0 },
-        reflection_factor: 0.7,
-    };
-    let metal_green: &dyn Material = &Metal {
-        color: Color { r: 0.0, g: 1.0, b: 0.0 },
-        reflection_factor: 0.2,
-    };
+    //let metal_yellow: &dyn Material = &Metal {reflection_factor: 0.3,};
 
-    let sphere1: Box<dyn Hittable> = Box::new(Sphere::new(
-        Vec3 { x: -1.5, y: 0.5, z: -1.0 },
-        0.5,
-    ));
-    let sphere2: Box<dyn Hittable> = Box::new(Sphere::new(
-        Vec3 { x: 0.0, y: 0.75, z: -1.5 },
-        0.75,
-    ));
-    let sphere3: Box<dyn Hittable> = Box::new(Sphere::new(
-        Vec3 { x: 1.5, y: 0.5, z: -1.0 },
-        0.5,
-    ));
+    let img = image::open("texture.png").unwrap();
+
+    let img_texture_map = PngTextureMap {image: img};
+
+    let plain = Plain {};
+    let texture_red = textures::plain::Plain { color: Color {r:0.9, g: 0.2, b: 0.1} };
+    //let metal_black: &dyn Material = &Metal {reflection_factor: 0.7,};
+    let metal_green = Metal { reflection_factor: 0.2, };
+
+    //let sphere1: Box<dyn Hittable> = Box::new(Sphere::new(Vec3 { x: -1.5, y: 0.5, z: -1.0 }, 0.5, ));
+    //let sphere2: Box<dyn Hittable> = Box::new(Sphere::new(Vec3 { x: 0.0, y: 0.75, z: -1.5 }, 0.75, ));
+    //let sphere3: Box<dyn Hittable> = Box::new(Sphere::new(Vec3 { x: 1.5, y: 0.5, z: -1.0 }, 0.5, ));
     /*let sol_sphere: &dyn Hittable = &Sphere::new(
         Vec3 { x: 0.0, y: -1000.0, z: -1.0 },
         1000.0,
     );*/
-    let sol_plane: Box<dyn Hittable> = Box::new(Plane::new(
-        Vec3 { x: 0.0, y: -5.0, z: 0.0 },
-        Vec3 { x: 0.0, y: 1.0, z: 0.0 }
-        ,));
-    let triangle: Box<dyn Hittable> = Box::new(Triangle::new(
-        Vec3 { x: -1.5, y: 0.5, z: -1.0 },
-        Vec3 { x: 1.5, y: 0.5, z: -1.0 },
-        Vec3 { x: -1.5, y: 2.5, z: -1.0 },
-    ));
+    //let sol_plane: Box<dyn Hittable> = Box::new(Plane::new(Vec3 { x: 0.0, y: -5.0, z: 0.0 }, Vec3 { x: 0.0, y: 1.0, z: 0.0 },));
+    let triangle = Triangle::new(Vec3 { x: -1.5, y: 0.5, z: -1.0 }, Vec3 { x: 1.5, y: 0.5, z: -1.0 }, Vec3 { x: -1.5, y: 2.5, z: -1.0 }, );
 
     //scene.add_primitive(sphere1, metal_black);
     //scene.add_primitive(sphere2, metal_yellow);
     //scene.add_primitive(sphere3, plain_red);
     //scene.add_primitive(sol_plane, metal_green);
-    //scene.add_primitive(triangle, plain_red);
+    //scene.add_primitive(Box::new(triangle), Box::new(plain), Box::new(texture_red));
 
-    scene.load_obj("test2.obj".to_string(), plain_red);
+    scene.load_obj("test2.obj".to_string(), Box::new(metal_green), Box::new(img_texture_map));
 
     /*let lower_left_corner = Vec3 { x: -2.0, y: -0.5, z: -1.0 };*/
     /*let horizontal = Vec3 { x: 4.0, y: 0.0, z: 0.0 };*/

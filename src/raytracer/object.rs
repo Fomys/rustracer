@@ -1,6 +1,6 @@
 use crate::raytracer::primitive::Primitive;
-use crate::raytracer::vec::Vec3;
 use crate::raytracer::ray::Ray;
+use crate::raytracer::vec::Vec3;
 
 pub struct Object<'a> {
     primitives: Vec<Primitive<'a>>,
@@ -10,8 +10,8 @@ pub struct Object<'a> {
 
 impl Object<'_> {
     pub fn new(primitives: Vec<Primitive<'a>>) -> Object {
-        let mut min: Vec3 = Vec3 { x: std::f32::INFINITY, y:std::f32::INFINITY, z: std::f32::INFINITY};
-        let mut max: Vec3 = Vec3 {x:std::f32::NEG_INFINITY, y: std::f32::NEG_INFINITY, z: std::f32::NEG_INFINITY};
+        let mut min: Vec3 = Vec3 { x: std::f32::INFINITY, y: std::f32::INFINITY, z: std::f32::INFINITY };
+        let mut max: Vec3 = Vec3 { x: std::f32::NEG_INFINITY, y: std::f32::NEG_INFINITY, z: std::f32::NEG_INFINITY };
         let mut object = Object { primitives, corner1: min, corner2: max };
         object.compute_border();
         object
@@ -40,15 +40,15 @@ impl Object<'_> {
 
         // compute minimum and maximum t projected on x
         if rayon.direction.x >= 0.0 {
-            tmin = (self.corner1.x- rayon.origin.x)/ rayon.direction.x;
-            tmax = (self.corner2.x- rayon.origin.x) / rayon.direction.x;
+            tmin = (self.corner1.x - rayon.origin.x) / rayon.direction.x;
+            tmax = (self.corner2.x - rayon.origin.x) / rayon.direction.x;
         } else {
-            tmin = (self.corner2.x - rayon.origin.x)/ rayon.direction.x;
+            tmin = (self.corner2.x - rayon.origin.x) / rayon.direction.x;
             tmax = (self.corner2.x - rayon.origin.x) / rayon.direction.x;
         }
 
         // compute minimum and maximum t projected on y
-        if rayon.direction.y>= 0.0 {
+        if rayon.direction.y >= 0.0 {
             tymin = (self.corner1.y - rayon.origin.y) / rayon.direction.y;
             tymax = (self.corner2.y - rayon.origin.y) / rayon.direction.y;
         } else {
@@ -57,10 +57,10 @@ impl Object<'_> {
         }
 
         // If values are incompatible there isn't hit
-        if tmin > tymax || tymin > tmax { return false };
+        if tmin > tymax || tymin > tmax { return false; };
         // Keep true minimum and maximum in tmin and tmax
         if tymin > tmin { tmin = tymin; }
-        if tymax< tmax { tmax = tymax; }
+        if tymax < tmax { tmax = tymax; }
 
         // compute minimum and maximum t projected on z
         if rayon.direction.z >= 0.0 {
@@ -72,12 +72,11 @@ impl Object<'_> {
         }
 
         // If values are incompatible there isn't hit
-        if tmin > tzmax || tzmin > tmax { return false };
+        if tmin > tzmax || tzmin > tmax { return false; };
         // Keep true minimum and maximum in tmin and tmax
         if tzmin > tmin { tmin = tzmin; }
-        if tzmax< tmax { tmax = tzmax; }
+        if tzmax < tmax { tmax = tzmax; }
 
         return (tmin > 0.0);
-
     }
 }

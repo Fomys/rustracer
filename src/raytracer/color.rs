@@ -7,6 +7,12 @@ pub struct Color {
     pub b: f32,
 }
 
+
+pub struct ColorInfo {
+    pub color: Color,
+    pub ratio: f32,
+}
+
 impl Color {
     pub fn black() -> Color {
         Color {
@@ -44,11 +50,11 @@ impl Div<f32> for Color {
     type Output = Color;
 
     fn div(self, other: f32) -> Color {
-            Color {
-                r: self.r / other,
-                g: self.g / other,
-                b: self.b / other,
-            }
+        Color {
+            r: self.r / other,
+            g: self.g / other,
+            b: self.b / other,
+        }
     }
 }
 
@@ -57,9 +63,9 @@ impl Mul for Color {
 
     fn mul(self, other: Color) -> Color {
         Color {
-            r: self.r*other.r,
-            g: self.g*other.g,
-            b: self.b*other.b,
+            r: self.r * other.r,
+            g: self.g * other.g,
+            b: self.b * other.b,
         }
     }
 }
@@ -69,9 +75,9 @@ impl Mul<f32> for Color {
 
     fn mul(self, other: f32) -> Color {
         Color {
-            r: self.r*other,
-            g: self.g*other,
-            b: self.b*other,
+            r: self.r * other,
+            g: self.g * other,
+            b: self.b * other,
         }
     }
 }
@@ -80,10 +86,9 @@ impl Mul<Color> for f32 {
     type Output = Color;
     fn mul(self, other: Color) -> Color {
         Color {
-            r: other.r*self,
-            g: other.g*self,
-            b: other.b*self,
+            r: other.r * self,
+            g: other.g * self,
+            b: other.b * self,
         }
     }
-
 }

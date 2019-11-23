@@ -1,29 +1,37 @@
-use crate::raytracer::hittables::hittable::{Hittable, HitInfo};
-use crate::raytracer::materials::material::Material;
-use crate::raytracer::color::Color;
-use crate::raytracer::vec::Vec3;
-use crate::raytracer::ray::Ray;
-use crate::raytracer::primitive::Primitive;
 use std::fs::File;
-use std::io::{BufReader, BufRead};
-use crate::raytracer::hittables::triangle::Triangle;
+use std::io::{BufRead, BufReader};
 
-pub struct Scene<'a> {
-    primitives: Vec<Primitive<'a>>,
+use crate::raytracer::color::Color;
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::hittables::triangle::Triangle;
+use crate::raytracer::materials::material::Material;
+use crate::raytracer::primitive::Primitive;
+use crate::raytracer::ray::Ray;
+use crate::raytracer::textures::texture::Texture;
+use crate::raytracer::vec::{Vec3, Vec2};
+use crate::raytracer::texture_maps::texture_map::TextureMap;
+use crate::raytracer::textures;
+
+
+pub struct Scene {
+    primitives: Vec<Primitive>,
+    //textures: Vec<Box<dyn Texture>>,
     pub ambiant_light: Color,
     pub ambiant_power: f32,
 }
 
-impl<'a> Scene<'a> {
-    pub fn load_obj(&mut self, filepath: String, material: &'a dyn Material) {
+impl Scene {
+    pub fn load_obj(&mut self, filepath: String, material: Box<dyn Material>, img_texture_map: Box<dyn TextureMap>) {
         let file = match File::open(filepath) {
             Ok(f) => f,
-            _ => { return },
+            _ => { return; }
         };
-        let mut reader = BufReader::new(file);
+        let reader = BufReader::new(file);
 
         let mut points: Vec<Vec3> = vec![];
-        let mut faces: Vec<(usize, usize, usize)> = vec![];
+        // f (v, v, v), (vt, vt, vt)
+        let mut faces: Vec<((usize, usize, usize), (usize, usize, usize))> = vec![];
+        let mut texture_points: Vec<Vec2<f32>> = vec![];
         // f v/vt/vn v/vt/vn v/vt/vn v/vt/vn
         // v x y z w
         for line in reader.lines() {
@@ -36,14 +44,27 @@ impl<'a> Scene<'a> {
                     points.push(Vec3 {
                         x: words.next().unwrap().parse::<f32>().unwrap(),
                         y: words.next().unwrap().parse::<f32>().unwrap(),
-                        z: words.next().unwrap().parse::<f32>().unwrap() });
+                        z: words.next().unwrap().parse::<f32>().unwrap(),
+                    });
                 }
                 Some("f") => {
                     // Faces
+                    let mut p1 = words.next().unwrap().split("/");
+                    let mut p2 = words.next().unwrap().split("/");
+                    let mut p3 = words.next().unwrap().split("/");
                     faces.push((
-                                   words.next().unwrap().split("/").next().unwrap().parse::<usize>().unwrap(),
-                                   words.next().unwrap().split("/").next().unwrap().parse::<usize>().unwrap(),
-                                   words.next().unwrap().split("/").next().unwrap().parse::<usize>().unwrap()));
+                        (p1.next().unwrap().parse::<usize>().unwrap(),
+                         p2.next().unwrap().parse::<usize>().unwrap(),
+                         p3.next().unwrap().parse::<usize>().unwrap()),
+                        (p1.next().unwrap().parse::<usize>().unwrap(),
+                         p2.next().unwrap().parse::<usize>().unwrap(),
+                         p3.next().unwrap().parse::<usize>().unwrap())));
+                }
+                Some("vt") => {
+                    texture_points.push(Vec2 {
+                        x: words.next().unwrap().parse::<f32>().unwrap(),
+                        y: words.next().unwrap().parse::<f32>().unwrap()
+                    });
                 }
                 _ => {}
             }
@@ -51,17 +72,20 @@ impl<'a> Scene<'a> {
         println!("{:?}", points);
         println!("{:?}", faces);
 
-        for (p1, p2, p3) in faces {
-            if p1 <= points.len() || p2 <= points.len() || p3 <= points.len() {
-                let new_triangle: Box<dyn Hittable> = Box::new(Triangle::new(points[p1-1],
-                                                                             points[p2-1], points[p3-1]));
-                self.add_primitive(new_triangle, material);
+        for ((p1, p2, p3), (t1, t2, t3)) in faces {
+            if p1 <= points.len() || p2 <= points.len() || p3 <= points.len()
+                || t1 <= texture_points.len() || t2 <= texture_points.len() || t2 <= texture_points.len(){
+                let img_texture = textures::image::Image::new(img_texture_map.clone(),
+                                                              texture_points[t1-1],
+                                                              texture_points[t2-1],
+                                                              texture_points[t3-1]);
+                let new_triangle = Triangle::new(points[p1 - 1], points[p2 - 1], points[p3 - 1]);
+                self.add_primitive(Box::new(new_triangle), material.clone(), Box::new(img_texture));
             }
         }
-
     }
 
-    pub fn new(ambiant_light: Color, ambiant_power: f32) -> Scene<'a> {
+    pub fn new(ambiant_light: Color, ambiant_power: f32) -> Scene {
         Scene {
             primitives: vec![],
             ambiant_light,
@@ -69,44 +93,15 @@ impl<'a> Scene<'a> {
         }
     }
 
-    pub fn add_primitive(&mut self, hittable: Box<dyn Hittable>, material: &'a dyn Material) {
-        let primitive: Primitive = Primitive { hittable, material };
+    pub fn add_primitive(&mut self, hittable: Box<dyn Hittable>, material: Box<dyn Material>, texture: Box<dyn Texture>) {
+        let primitive: Primitive = Primitive { hittable, material, texture };
         self.primitives.push(primitive);
     }
 
-    /*pub fn load_obj(&'a mut self, filename: String) {
-        let material: Box<dyn Material> = Box::new( Plain { color: Color { r: 0.0, g: 0.0, b: 0.0 }});
-        let matref: &'static Box<dyn Material> = &material;
-        let input = File::open(filename).unwrap();
-        let buffered = BufReader::new(input);
-        let mut points: Vec<Vec3> = vec![];
-        for line in buffered.lines() {
-            let line = line.unwrap();
-            if line.starts_with("v") {
-                let v: Vec<&str> = line.split(" ").collect();
-                points.push(Vec3 {
-                    x: v[1].parse::<f32>().unwrap(),
-                    y: v[2].parse::<f32>().unwrap(),
-                    z: v[3].parse::<f32>().unwrap(),
-                });
-            } else if line.starts_with("f") {
-                let v: Vec<&str> = line.split(" ").collect();
-                let a: Vec<&str> = v[1].split("/").collect();
-                let b: Vec<&str> = v[2].split("/").collect();
-                let c: Vec<&str> = v[3].split("/").collect();
-                let ia: usize = a[0].parse::<usize>().unwrap();
-                let ib: usize = b[0].parse::<usize>().unwrap();
-                let ic: usize = c[0].parse::<usize>().unwrap();
-                let new_triangle: Box<dyn Hittable> = Box::new(Triangle::new(points[ia],
-                                                 points[ib],
-                                                 points[ic]));
-                self.add_object(&new_triangle, matref);
-            }
-        }
-    }*/
 
     pub fn background_color(&self, rayon: &Ray) -> Color {
-        Color { r: 0.0, g: 0.0, b: 1.0 }
+        let r = rayon.normalized();
+        Color { r: r.direction.x, g: r.direction.y, b: r.direction.z }
     }
 
     pub fn trace(&self, rayon: &Ray, max_iter: usize) -> Color {
@@ -115,27 +110,37 @@ impl<'a> Scene<'a> {
             distance: std::f32::INFINITY,
             normal: Vec3::zero(),
             point: Vec3::zero(),
-            rayon: *rayon
+            rayon: *rayon,
+            position: (0.0, 0.0),
         };
+
+        // Search visible object
         for primitive in self.primitives.iter() {
             match primitive.hittable.compute_hit(&rayon) {
-                    Some(hitinfo) => {
-                        if hitinfo.distance < closest_hitinfo.distance {
-                            closest_primitive = Some(primitive);
-                            closest_hitinfo = hitinfo;
-                        }
+                Some(hitinfo) => {
+                    if hitinfo.distance < closest_hitinfo.distance {
+                        closest_primitive = Some(primitive);
+                        closest_hitinfo = hitinfo;
                     }
-                    _ => {}
                 }
-
+                _ => {}
+            }
         }
+
 
         match closest_primitive {
             Some(object) => {
-                return object.material.get_color(&closest_hitinfo, self, max_iter);
+                // Get material color (color due to reflect, refract...)
+                let color_info = object.material.get_color(&closest_hitinfo,    self, max_iter);
+                // Get Texture color
+                let texture_color = object.texture.get_color(&closest_hitinfo);
+                return texture_color * (1.0 - color_info.ratio) + color_info.ratio * color_info.color;
             }
             _ => {}
         }
+
+
+        // Get texture color
         self.background_color(rayon)
     }
 }

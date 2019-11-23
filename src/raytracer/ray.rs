@@ -1,4 +1,5 @@
 use crate::raytracer::vec::Vec3;
+
 #[derive(Debug, Copy, Clone)]
 pub struct Ray {
     pub origin: Vec3,
@@ -21,6 +22,7 @@ impl Ray {
         }
     }
 
+    #[allow(dead_code)]
     pub fn normalize(&mut self) {
         self.direction.normalize();
     }
