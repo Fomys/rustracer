@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::rc::Rc;
 
 use crate::raytracer::color::Color;
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
@@ -23,7 +24,7 @@ impl Scene {
     // Fonction qui pose problème, surtout la TextureMap
     // Si je borrow self ave un lifetime sufisant pour que la référence à texturemap survive assez
     // longtemps je ne peux plus utiliser trace
-    pub fn load_obj(&mut self, filepath: String, material: Box<dyn Material>, img_texture_map: Box<dyn TextureMap>) {
+    pub fn load_obj(&mut self, filepath: String, material: Box<dyn Material>, img_texture_map: Rc<dyn TextureMap>) {
         let file = match File::open(filepath) {
             Ok(f) => f,
             _ => { return; }
@@ -72,8 +73,6 @@ impl Scene {
                 _ => {}
             }
         }
-        println!("{:?}", points);
-        println!("{:?}", faces);
 
         for ((p1, p2, p3), (t1, t2, t3)) in faces {
             if p1 <= points.len() || p2 <= points.len() || p3 <= points.len()
@@ -82,7 +81,7 @@ impl Scene {
                 // Ici je clone la box texturemap, il faudrait que je mette une référence à la place,
                 // avec un lifetime qui borrow self trop longtemps (serpent qui se mord la queu, si je veux que
                 // img_texture_map aie un lifetime assez long, il faut que il soit aussi grand que self
-                let img_texture = textures::image::Image::new(img_texture_map.clone(),
+                let img_texture = textures::image::Image::new(Rc::clone(&img_texture_map),
                                                               texture_points[t1-1],
                                                               texture_points[t2-1],
                                                               texture_points[t3-1]);

@@ -19,6 +19,7 @@ use crate::raytracer::materials::metal::Metal;
 use crate::raytracer::hittables::hittable::Hittable;
 use crate::raytracer::hittables::triangle::Triangle;
 use crate::raytracer::textures::texture::Texture;
+use std::rc::Rc;
 
 mod raytracer;
 
@@ -81,7 +82,7 @@ fn main() {
     //scene.add_primitive(sol_plane, metal_green);
     //scene.add_primitive(Box::new(triangle), Box::new(plain), Box::new(texture_red));
 
-    scene.load_obj("test2.obj".to_string(), Box::new(metal_green), Box::new(img_texture_map));
+    scene.load_obj("test2.obj".to_string(), Box::new(metal_green), Rc::new(img_texture_map));
 
     /*let lower_left_corner = Vec3 { x: -2.0, y: -0.5, z: -1.0 };*/
     /*let horizontal = Vec3 { x: 4.0, y: 0.0, z: 0.0 };*/
