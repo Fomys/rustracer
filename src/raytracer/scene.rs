@@ -14,13 +14,15 @@ use crate::raytracer::textures;
 
 
 pub struct Scene {
-    primitives: Vec<Primitive>,
-    //textures: Vec<Box<dyn Texture>>,
-    pub ambiant_light: Color,
+    primitives: Vec<Primitive>, // Liste des primitives de la scène
+    pub ambiant_light: Color, // Couleur ambiante
     pub ambiant_power: f32,
 }
 
 impl Scene {
+    // Fonction qui pose problème, surtout la TextureMap
+    // Si je borrow self ave un lifetime sufisant pour que la référence à texturemap survive assez
+    // longtemps je ne peux plus utiliser trace
     pub fn load_obj(&mut self, filepath: String, material: Box<dyn Material>, img_texture_map: Box<dyn TextureMap>) {
         let file = match File::open(filepath) {
             Ok(f) => f,
@@ -34,6 +36,7 @@ impl Scene {
         let mut texture_points: Vec<Vec2<f32>> = vec![];
         // f v/vt/vn v/vt/vn v/vt/vn v/vt/vn
         // v x y z w
+        // Partie très moche mais tout marche bien
         for line in reader.lines() {
             let text = line.unwrap();
             let mut words = text.split_whitespace();
@@ -75,6 +78,10 @@ impl Scene {
         for ((p1, p2, p3), (t1, t2, t3)) in faces {
             if p1 <= points.len() || p2 <= points.len() || p3 <= points.len()
                 || t1 <= texture_points.len() || t2 <= texture_points.len() || t2 <= texture_points.len(){
+
+                // Ici je clone la box texturemap, il faudrait que je mette une référence à la place,
+                // avec un lifetime qui borrow self trop longtemps (serpent qui se mord la queu, si je veux que
+                // img_texture_map aie un lifetime assez long, il faut que il soit aussi grand que self
                 let img_texture = textures::image::Image::new(img_texture_map.clone(),
                                                               texture_points[t1-1],
                                                               texture_points[t2-1],
@@ -104,6 +111,7 @@ impl Scene {
         Color { r: r.direction.x, g: r.direction.y, b: r.direction.z }
     }
 
+    // La deuxième fonction qui borrow self
     pub fn trace(&self, rayon: &Ray, max_iter: usize) -> Color {
         let mut closest_primitive: Option<&Primitive> = None;
         let mut closest_hitinfo: HitInfo = HitInfo {

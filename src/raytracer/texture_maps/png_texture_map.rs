@@ -3,6 +3,8 @@ use image::{DynamicImage, GenericImageView};
 use crate::raytracer::color::Color;
 use crate::raytracer::texture_maps::texture_map::TextureMap;
 
+
+// L'implémentation de la texturemap pour une image png
 #[derive(Clone)]
 pub struct PngTextureMap {
     pub image: DynamicImage,
