@@ -10,7 +10,7 @@ pub struct HitInfo {
     pub position: Vec3,
 }
 
-    pub trait Hittable {
-        fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo>;
-        fn extremums(&self) -> (Vec3, Vec3);
-    }
+pub trait Hittable: Sync + Send {
+    fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo>;
+    fn extremums(&self) -> (Vec3, Vec3);
+}

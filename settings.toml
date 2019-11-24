@@ -1,0 +1,4 @@
+height = 600
+width = 800
+rays_per_pixel = 2
+max_recursions = 5

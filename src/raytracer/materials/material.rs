@@ -2,7 +2,7 @@ use crate::raytracer::color::ColorInfo;
 use crate::raytracer::hittables::hittable::HitInfo;
 use crate::raytracer::scene::Scene;
 
-pub trait Material: MaterialClone {
+pub trait Material: MaterialClone + Sync + Send {
     fn get_color(&self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize) -> ColorInfo;
 }
 
