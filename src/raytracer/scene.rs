@@ -9,9 +9,9 @@ use crate::raytracer::materials::material::Material;
 use crate::raytracer::primitive::Primitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::textures::texture::Texture;
-use crate::raytracer::vec::{Vec3, Vec2};
 use crate::raytracer::texture_maps::texture_map::TextureMap;
 use crate::raytracer::textures;
+use crate::raytracer::utils::vec::{Vec3, Vec2};
 
 
 pub struct Scene {
@@ -118,7 +118,7 @@ impl Scene {
             normal: Vec3::zero(),
             point: Vec3::zero(),
             rayon: *rayon,
-            position: (0.0, 0.0),
+            position: Vec3::zero(),
         };
 
         // Search visible object

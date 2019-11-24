@@ -1,4 +1,4 @@
-use crate::raytracer::vec::Vec3;
+use crate::raytracer::utils::vec::Vec3;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Ray {
@@ -25,22 +25,5 @@ impl Ray {
     #[allow(dead_code)]
     pub fn normalize(&mut self) {
         self.direction.normalize();
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::raytracer::ray::Ray;
-    use crate::raytracer::vec::Vec3;
-
-    #[test]
-    fn point_at() {
-        assert_eq!(
-            Ray {
-                origin: Vec3 { x: 1f32, y: 1f32, z: 1f32 },
-                direction: Vec3 { x: 1f32, y: 1f32, z: 1f32 },
-            }.point_at(1f32),
-            Vec3 { x: 2f32, y: 2f32, z: 2f32 }
-        );
     }
 }

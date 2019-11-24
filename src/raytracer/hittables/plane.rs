@@ -1,7 +1,7 @@
-use crate::raytracer::consts;
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::vec::Vec3;
+use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::consts;
 
 pub struct Plane {
     origin: Vec3,
@@ -46,7 +46,7 @@ impl Hittable for Plane {
                     normal: self.normal,
                     point: rayon.point_at(t),
                     rayon: *rayon,
-                    position: (0.0, 0.0),
+                    position: Vec3::zero(),
                 });
             }
         }

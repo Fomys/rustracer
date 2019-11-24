@@ -1,10 +1,9 @@
-pub mod vec;
 pub mod ray;
 pub mod scene;
 pub mod color;
 pub mod camera;
-pub mod consts;
 pub mod primitive;
+pub mod utils;
 
 // Folders
 pub mod hittables;

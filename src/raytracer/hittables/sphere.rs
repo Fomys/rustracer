@@ -1,6 +1,6 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::vec::Vec3;
+use crate::raytracer::utils::vec::Vec3;
 
 pub struct Sphere {
     pub center: Vec3,
@@ -40,7 +40,7 @@ impl Hittable for Sphere {
                     point,
                     normal: (point - &self.center),
                     rayon: *rayon,
-                    position: (0.0, 0.0),
+                    position: Vec3::zero(),
                 });
             }
             let distance = (-b + sqrt_delta) / a;
@@ -51,7 +51,7 @@ impl Hittable for Sphere {
                     point,
                     normal: (point - &self.center),
                     rayon: *rayon,
-                    position: (0.0, 0.0),
+                    position: Vec3::zero(),
                 });
             }
         }

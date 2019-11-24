@@ -1,5 +1,5 @@
 use crate::raytracer::ray::Ray;
-use crate::raytracer::vec::Vec3;
+use crate::raytracer::utils::vec::Vec3;
 
 #[derive(Debug)]
 pub struct HitInfo {
@@ -7,7 +7,7 @@ pub struct HitInfo {
     pub normal: Vec3,
     pub point: Vec3,
     pub rayon: Ray,
-    pub position: (f32, f32),
+    pub position: Vec3,
 }
 
     pub trait Hittable {

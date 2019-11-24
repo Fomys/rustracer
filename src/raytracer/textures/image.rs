@@ -1,9 +1,9 @@
 use crate::raytracer::color::Color;
 use crate::raytracer::hittables::hittable::HitInfo;
 use crate::raytracer::textures::texture::Texture;
-use crate::raytracer::vec::Vec2;
 use crate::raytracer::texture_maps::texture_map::TextureMap;
 use std::rc::Rc;
+use crate::raytracer::utils::vec::Vec2;
 
 
 // Voilà la struct qui pose problème, il contient une copie de la texture map, mais la texture n'est
@@ -28,8 +28,11 @@ impl Image {
 
 impl Texture for Image {
     fn get_color(&self, hitinfo: &HitInfo) -> Color {
-        let pos = self.origin + hitinfo.position.0 * self.dir1 +
-            hitinfo.position.1 * self.dir2;
+        if hitinfo.position.x > 1.0 {
+            println!("Nouveau rayon, contact à: {:?}", hitinfo.position);
+        }
+        let pos = self.origin + hitinfo.position.x * self.dir1 +
+            hitinfo.position.y * self.dir2;
         self.image.get_pixel(pos.x, pos.y)
     }
 }
