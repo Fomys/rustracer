@@ -1,6 +1,5 @@
 use crate::raytracer::color::Color;
 
-
 // Le truc que j'aimerais partager entre les différentes textures, c'est un trait car je sais pas
 // si c'est possible d'avoir une texturemap sous un autre format
 pub trait TextureMap: TextureMapClone + Sync + Send {

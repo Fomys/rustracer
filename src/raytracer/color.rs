@@ -1,5 +1,9 @@
 use std::ops::{Add, Div, Mul};
 
+pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
+pub const RED: Color = Color { r: 1.0, g: 0.0, b: 0.0 };
+
+
 #[derive(Debug, Clone, Copy)]
 pub struct Color {
     pub r: f32,

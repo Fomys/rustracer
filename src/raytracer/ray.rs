@@ -12,7 +12,7 @@ impl Ray {
     }
 
     pub fn reflect(&self, normal: &Vec3) -> Vec3 {
-        2.0 * normal.normalized() * Vec3::dot(&normal.normalized(), &-self.direction) - &-self.direction
+        2.0 * normal.normalized() * Vec3::dot(&normal.normalized(), &-self.direction) - -self.direction
     }
 
     pub fn normalized(&self) -> Ray {

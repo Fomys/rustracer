@@ -15,7 +15,7 @@ impl Sphere {
     pub(crate) fn new(center: Vec3, radius: f32) -> Sphere {
         Sphere {
             center,
-            radius: radius,
+            radius,
             r_2: radius * radius,
             mincoord: center - Vec3 { x: radius, y: radius, z: radius },
             maxcoord: center + Vec3 { x: radius, y: radius, z: radius },
@@ -25,7 +25,7 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
-        let oc = &rayon.origin - self.center;
+        let oc = rayon.origin - self.center;
         let a = Vec3::dot(&rayon.direction, &rayon.direction);
         let b = Vec3::dot(&rayon.direction, &oc);
         let c = Vec3::dot(&oc, &oc) - self.r_2;
@@ -38,7 +38,7 @@ impl Hittable for Sphere {
                 return Some(HitInfo {
                     distance,
                     point,
-                    normal: (point - &self.center),
+                    normal: (point - self.center),
                     rayon: *rayon,
                     position: Vec3::zero(),
                 });
@@ -49,7 +49,7 @@ impl Hittable for Sphere {
                 return Some(HitInfo {
                     distance,
                     point,
-                    normal: (point - &self.center),
+                    normal: (point - self.center),
                     rayon: *rayon,
                     position: Vec3::zero(),
                 });

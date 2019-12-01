@@ -1,7 +1,7 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::vec::Vec3;
 use crate::raytracer::utils::consts;
+use crate::raytracer::utils::vec::Vec3;
 
 pub struct Triangle {
     pub a: Vec3,
@@ -74,7 +74,7 @@ impl Hittable for Triangle {
         let denom = Vec3::dot(&self.normal, &rayon.direction);
         if denom.abs() >= consts::ZERO {
             // Find intersection with plane
-            let t = Vec3::dot(&(self.a - &rayon.origin), &self.normal) / denom;
+            let t = Vec3::dot(&(self.a - rayon.origin), &self.normal) / denom;
             if t >= 0.0 {
                 let intersection = rayon.point_at(t);
                 // Check if interestion is in triangle

@@ -10,4 +10,5 @@ pub mod hittables;
 pub mod materials;
 pub mod textures;
 pub mod texture_maps;
+pub mod integrator;
 //pub mod lights;

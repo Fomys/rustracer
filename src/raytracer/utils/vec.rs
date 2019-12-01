@@ -107,11 +107,42 @@ impl Mul<Vec2<usize>> for usize {
     }
 }
 
+impl Div<usize> for Vec2<usize> {
+    type Output = Vec2<usize>;
+
+    fn div(self, other: usize) -> Vec2<usize> {
+        Vec2 {
+            x: self.x / other,
+            y: self.y / other,
+        }
+    }
+}
+
+impl Div<Vec2<usize>> for Vec2<usize> {
+    type Output = Vec2<usize>;
+
+    fn div(self, other: Vec2<usize>) -> Vec2<usize> {
+        Vec2 {
+            x: self.x / other.x,
+            y: self.y / other.y,
+        }
+    }
+}
+
 impl From<Vec2<f32>> for Vec2<usize> {
     fn from(item: Vec2<f32>) -> Self {
         Vec2 {
             x: item.x as usize,
             y: item.y as usize,
+        }
+    }
+}
+
+impl From<Vec2<usize>> for Vec2<f32> {
+    fn from(item: Vec2<usize>) -> Self {
+        Vec2 {
+            x: item.x as f32,
+            y: item.y as f32,
         }
     }
 }
@@ -312,3 +343,5 @@ impl Div<f32> for Vec3 {
         }
     }
 }
+
+

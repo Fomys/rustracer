@@ -1,7 +1,7 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::vec::Vec3;
 use crate::raytracer::utils::consts;
+use crate::raytracer::utils::vec::Vec3;
 
 pub struct Plane {
     origin: Vec3,
@@ -39,7 +39,7 @@ impl Hittable for Plane {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
         let denom = Vec3::dot(&self.normal, &rayon.direction);
         if denom.abs() >= consts::ZERO {
-            let t = Vec3::dot(&(self.origin - &rayon.origin), &self.normal) / denom;
+            let t = Vec3::dot(&(self.origin - rayon.origin), &self.normal) / denom;
             if t >= 0.0 {
                 return Some(HitInfo {
                     distance: t,
