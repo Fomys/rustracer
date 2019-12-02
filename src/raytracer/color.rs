@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul};
+use std::ops::{Add, Div, Mul, AddAssign};
 
 pub const BLACK: Color = Color { r: 0.0, g: 0.0, b: 0.0 };
 pub const RED: Color = Color { r: 1.0, g: 0.0, b: 0.0 };
@@ -94,5 +94,13 @@ impl Mul<Color> for f32 {
             g: other.g * self,
             b: other.b * self,
         }
+    }
+}
+
+impl AddAssign for Color {
+    fn add_assign(&mut self, other: Self) {
+        self.r += other.r;
+        self.g += other.g;
+        self.b += other.b;
     }
 }

@@ -30,11 +30,15 @@ impl Integrator for SimpleIntegrator {
     fn render(&mut self) {
         // NEXT: Intégrer le parallélisme ici
         for tile_index in 0..self.camera.tiles.len() {
-            for ray_index in 0..self.camera.tiles[tile_index].rays.len() {
-                let new_color = self.compute_ray(self.camera.tiles[tile_index].rays[ray_index]);
-                self.camera.tiles[tile_index].buffer[ray_index] = new_color;
+            for pixel_index in 0..self.camera.tiles[tile_index].rays.len() {
+                let mut new_color = BLACK;
+                for ray_index in 0..self.camera.tiles[tile_index].rays[pixel_index].len() {
+                    new_color += self.compute_ray(self.camera.tiles[tile_index].rays[pixel_index][ray_index]);
+                }
+                self.camera.tiles[tile_index].buffer[pixel_index] = new_color / self.camera.tiles[tile_index].rays[pixel_index].len() as f32;
             }
             self.camera.merge_tile(tile_index);
+            println!("{:.2}%", (tile_index as f32 * 100.0 /self.camera.tiles.len() as f32));
         }
         self.camera.save();
     }

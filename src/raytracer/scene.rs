@@ -6,7 +6,8 @@ use std::sync::Arc;
 use crate::raytracer::color::Color;
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::hittables::triangle::Triangle;
-use crate::raytracer::materials::material::Material;
+use crate::raytracer::lights::light::Light;
+use crate::raytracer::materials::material::{MaterialPrimitive, Material};
 use crate::raytracer::primitive::Primitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::texture_maps::texture_map::TextureMap;
@@ -16,6 +17,7 @@ use crate::raytracer::utils::vec::{Vec2, Vec3};
 
 pub struct Scene {
     primitives: Vec<Primitive>,
+    pub(crate) lights: Vec<Arc<Light>>,
     // Liste des primitives de la scène
     pub ambiant_light: Color,
     // Couleur ambiante
@@ -26,24 +28,51 @@ impl Scene {
     pub fn new(ambiant_light: Color, ambiant_power: f32) -> Scene {
         Scene {
             primitives: vec![],
+            lights: vec![],
             ambiant_light,
             ambiant_power,
         }
     }
 
-    pub fn add_primitive(&mut self, hittable: Box<dyn Hittable>, material: Box<dyn Material>, texture: Box<dyn Texture>) {
-        let primitive: Primitive = Primitive { hittable, material, texture };
+    pub fn add_light(&mut self, light: Arc<dyn Light>) {
+        self.lights.push(light);
+    }
+
+    pub fn add_primitive(
+        &mut self,
+        hittable: Arc<dyn Hittable>,
+        material: Arc<Material>,
+        texture: Arc<dyn Texture>,
+    ) {
+        let primitive: Primitive = Primitive {
+            hittable,
+            material,
+            texture,
+        };
         self.primitives.push(primitive);
     }
 
-
     pub fn background_color(&self, rayon: &Ray) -> Color {
         let r = rayon.normalized();
-        Color { r: 0.0, g: 0.0, b: 0.0}
+        Color {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+        }
     }
 
-    // La deuxième fonction qui borrow self
-    pub fn trace(&self, rayon: &Ray, max_iter: usize) -> Color {
+    pub fn launch_ray_min_dist(&self, rayon: &Ray, distance: f32) -> bool {
+        for primitive in self.primitives.iter() {
+            if let Some(hitinfo) = primitive.hittable.compute_hit(&rayon) {
+                if hitinfo.distance < distance {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    pub fn launch_ray(&self, rayon: &Ray) -> (HitInfo, Option<&Primitive>) {
         let mut closest_primitive: Option<&Primitive> = None;
         let mut closest_hitinfo: HitInfo = HitInfo {
             distance: std::f32::INFINITY,
@@ -63,15 +92,19 @@ impl Scene {
             }
         }
 
+        (closest_hitinfo, closest_primitive)
+    }
+
+    pub fn trace(&self, rayon: &Ray, max_iter: usize) -> Color {
+        let (closest_hitinfo, closest_primitive) = self.launch_ray(rayon);
 
         if let Some(object) = closest_primitive {
-                // Get material color (color due to reflect, refract...)
-                let color_info = object.material.get_color(&closest_hitinfo, self, max_iter);
-                // Get Texture color
-                let texture_color = object.texture.get_color(&closest_hitinfo);
-                return texture_color * (1.0 - color_info.ratio) + color_info.ratio * color_info.color;
-            }
-
+            // Get material color (color due to reflect, refract...)
+            let material_color = object.material.get_color(&closest_hitinfo, self, max_iter);
+            // Get Texture color
+            let texture_color = object.texture.get_color(&closest_hitinfo);
+            return texture_color * material_color;
+        }
 
         // Get texture color
         self.background_color(rayon)

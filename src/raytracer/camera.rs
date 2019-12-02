@@ -4,7 +4,7 @@ use std::path::Path;
 
 use crate::raytracer::color::{Color, BLACK, RED};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::consts::TILE_SIZE;
+use crate::raytracer::utils::consts::{TILE_SIZE, RAY_PER_PIXELS};
 use crate::raytracer::utils::vec::{Vec2, Vec3};
 use minifb::{Window, WindowOptions};
 
@@ -16,13 +16,13 @@ pub struct Tile {
     // Buffer interne du tile
     pub buffer: Vec<Color>,
     // Liste des rayons pour itérer
-    pub rays: Vec<Ray>,
+    pub rays: Vec<Vec<Ray>>,
 }
 
 impl Tile {
     fn new(size: Vec2<usize>, upper_left_corner: Vec2<usize>) -> Tile {
-        let mut rays: Vec<Ray> = vec![];
-        let mut buffer: Vec<Color> = vec![RED; size.x * size.y];
+        let mut rays: Vec<Vec<Ray>> = vec![];
+        let mut buffer: Vec<Color> = vec![BLACK; size.x * size.y];
         rays.reserve_exact(size.x * size.y);
         Tile {
             size,
@@ -46,18 +46,23 @@ impl Tile {
     ) {
         for j in 0..self.size.y {
             for i in 0..self.size.x {
-                //println!(" i + self.lower_left_corner.x - self.size.x {} - {}",  i + self.lower_left_corner.x, self.size.x);
-                self.rays.push(Camera::raw_get_ray(
-                    origin,
-                    horizontal_vector,
-                    vertical_vector,
-                    lower_left_corner,
-                    Vec2 {
-                        x: i + self.upper_left_corner.x,
-                        y: j + self.upper_left_corner.y,
-                    },
-                    size,
-                ));
+                let mut temp_rays: Vec<Ray> = vec![];
+                for sub_i in 0..RAY_PER_PIXELS {
+                    for sub_j in 0..RAY_PER_PIXELS {
+                        temp_rays.push(Camera::raw_get_ray(
+                            origin,
+                            horizontal_vector,
+                            vertical_vector,
+                            lower_left_corner,
+                            Vec2 {
+                                x: i as f32 + self.upper_left_corner.x as f32 + sub_i as f32 / RAY_PER_PIXELS as f32,
+                                y: j as f32 + self.upper_left_corner.y as f32 + sub_j as f32 / RAY_PER_PIXELS as f32,
+                            },
+                            size,
+                        ));
+                    }
+                }
+                self.rays.push(temp_rays);
             }
         }
     }
@@ -141,14 +146,14 @@ impl Camera {
         horizontal_vector: Vec3,
         vertical_vector: Vec3,
         lower_left_corner: Vec3,
-        position: Vec2<usize>,
+        position: Vec2<f32>,
         size: Vec2<usize>,
     ) -> Ray {
         Ray {
             origin,
             direction: (lower_left_corner
-                + horizontal_vector * position.x as f32 / size.x as f32
-                + vertical_vector * position.y as f32 / size.y as f32)
+                + horizontal_vector * position.x / size.x as f32
+                + vertical_vector * position.y / size.y as f32)
                 - origin,
         }
     }
