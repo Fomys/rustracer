@@ -9,7 +9,7 @@ use crate::raytracer::utils::vec::Vec3;
 pub struct Diffuse {}
 
 impl MaterialPrimitive for Diffuse {
-    fn get_color(&self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize) -> Color {
+    fn get_color(&self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut rand::XorShiftRng) -> Color {
         let mut new_color = BLACK;
         let mut i = 0;
         for light in scene.lights.iter() {

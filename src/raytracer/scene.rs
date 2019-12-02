@@ -95,12 +95,12 @@ impl Scene {
         (closest_hitinfo, closest_primitive)
     }
 
-    pub fn trace(&self, rayon: &Ray, max_iter: usize) -> Color {
+    pub fn trace(&self, rayon: &Ray, max_iter: usize, rng: &mut rand::XorShiftRng) -> Color {
         let (closest_hitinfo, closest_primitive) = self.launch_ray(rayon);
 
         if let Some(object) = closest_primitive {
             // Get material color (color due to reflect, refract...)
-            let material_color = object.material.get_color(&closest_hitinfo, self, max_iter);
+            let material_color = object.material.get_color(&closest_hitinfo, self, max_iter, rng);
             // Get Texture color
             let texture_color = object.texture.get_color(&closest_hitinfo);
             return texture_color *  material_color;
