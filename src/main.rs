@@ -92,7 +92,7 @@ fn main() {
     let light_omnidirectional_2 = Arc::new(Omnidirectional {
         color: Color {
             r: 1.0,
-            g: 1.0,
+            g: 0.0,
             b: 1.0,
         },
         position: Vec3 {
@@ -105,7 +105,7 @@ fn main() {
     scene.add_primitive(
         Arc::new(sphere),
         Arc::new(Material {
-            materials: vec![(0.05, diffuse.clone()), (0.95, metal.clone())],
+            materials: vec![(0.1, diffuse.clone()), (0.9, metal.clone())],
             texture_ratio: 0.1,
         }),
         Arc::new(plain_color_2),
@@ -113,7 +113,7 @@ fn main() {
     scene.add_primitive(
         Arc::new(sphere_2),
         Arc::new(Material {
-            materials: vec![(1.0, diffuse.clone())],
+            materials: vec![(0.95, diffuse.clone())],
             texture_ratio: 0.1,
         }),
         Arc::new(plain_color),
@@ -121,7 +121,7 @@ fn main() {
     scene.add_primitive(
         Arc::new(sphere_3),
         Arc::new(Material {
-            materials: vec![(0.5, diffuse.clone()), (0.5, metal.clone())],
+            materials: vec![(0.95, diffuse.clone()), (0.05, metal.clone())],
             texture_ratio: 0.1,
         }),
         Arc::new(plain_color),

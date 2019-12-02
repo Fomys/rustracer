@@ -103,7 +103,7 @@ impl Scene {
             let material_color = object.material.get_color(&closest_hitinfo, self, max_iter);
             // Get Texture color
             let texture_color = object.texture.get_color(&closest_hitinfo);
-            return texture_color * material_color;
+            return texture_color *  material_color;
         }
 
         // Get texture color

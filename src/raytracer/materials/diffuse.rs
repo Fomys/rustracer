@@ -14,23 +14,13 @@ impl MaterialPrimitive for Diffuse {
         let mut i = 0;
         for light in scene.lights.iter() {
             let mut direction = light.get_position() - hitinfo.point;
-            if scene.launch_ray_min_dist(
+            if !scene.launch_ray_min_dist(
                 &Ray {
-                    origin: hitinfo.point,
+                    origin: hitinfo.point + 0.01 * direction,
                     direction,
                 },
                 direction.length(),
             ) {
-                if max_iter > 0 {
-                    new_color += scene.trace(
-                        &Ray {
-                            origin: hitinfo.point,
-                            direction,
-                        },
-                        max_iter - 1,
-                    ) * Vec3::dot(&direction, &hitinfo.normal).max(0.0);
-                }
-            } else {
                 new_color += light.get_color() * Vec3::dot(&direction, &hitinfo.normal).max(0.0);
             }
         }
