@@ -59,7 +59,7 @@ fn main() {
         1.0,
     );
 
-    let metal = Arc::new(materials::metal::Metal {fuzziness: 0.00});
+    let metal = Arc::new(materials::metal::Metal { fuzziness: 0.00 });
     let diffuse = Arc::new(materials::diffuse::Diffuse {});
 
     let plain_color = textures::plain::Plain {
@@ -121,7 +121,7 @@ fn main() {
     scene.add_primitive(
         Arc::new(sphere_3),
         Arc::new(Material {
-            materials: vec![(0.05, diffuse.clone()), (1.0, metal.clone())],
+            materials: vec![(0.05, diffuse), (1.0, metal)],
             texture_ratio: 0.1,
         }),
         Arc::new(plain_color),

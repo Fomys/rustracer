@@ -4,6 +4,7 @@ use crate::raytracer::materials::material::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
 use crate::raytracer::utils::vec::Vec3;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Diffuse {}

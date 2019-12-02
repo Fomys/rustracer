@@ -4,7 +4,7 @@ use std::path::Path;
 
 use crate::raytracer::color::{Color, BLACK, RED};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::consts::{TILE_SIZE, RAY_PER_PIXELS};
+use crate::raytracer::utils::consts::{RAY_PER_PIXELS, TILE_SIZE};
 use crate::raytracer::utils::vec::{Vec2, Vec3};
 use minifb::{Window, WindowOptions};
 
@@ -14,21 +14,18 @@ pub struct Tile {
     // Position sur le buffer
     upper_left_corner: Vec2<usize>,
     // Buffer interne du tile
-    pub buffer: Vec<Color>,
+    pub(crate) buffer: Vec<Color>,
     // Liste des rayons pour itérer
-    pub rays: Vec<Vec<Ray>>,
+    pub(crate) rays: Vec<Vec<Ray>>,
 }
 
 impl Tile {
     fn new(size: Vec2<usize>, upper_left_corner: Vec2<usize>) -> Tile {
-        let mut rays: Vec<Vec<Ray>> = vec![];
-        let mut buffer: Vec<Color> = vec![BLACK; size.x * size.y];
-        rays.reserve_exact(size.x * size.y);
         Tile {
             size,
             upper_left_corner,
-            buffer,
-            rays,
+            buffer: vec![BLACK; size.x * size.y],
+            rays: vec![],
         }
     }
 
@@ -36,30 +33,20 @@ impl Tile {
         self.buffer[index] = color;
     }
 
-    fn preprocess(
-        &mut self,
-        origin: Vec3,
-        horizontal_vector: Vec3,
-        vertical_vector: Vec3,
-        lower_left_corner: Vec3,
-        size: Vec2<usize>,
-    ) {
+    fn preprocess(&mut self, camera: &Camera) {
         for j in 0..self.size.y {
             for i in 0..self.size.x {
                 let mut temp_rays: Vec<Ray> = vec![];
                 for sub_i in 0..RAY_PER_PIXELS {
                     for sub_j in 0..RAY_PER_PIXELS {
-                        temp_rays.push(Camera::raw_get_ray(
-                            origin,
-                            horizontal_vector,
-                            vertical_vector,
-                            lower_left_corner,
-                            Vec2 {
-                                x: i as f32 + self.upper_left_corner.x as f32 + sub_i as f32 / RAY_PER_PIXELS as f32,
-                                y: j as f32 + self.upper_left_corner.y as f32 + sub_j as f32 / RAY_PER_PIXELS as f32,
-                            },
-                            size,
-                        ));
+                        temp_rays.push(camera.get_ray(Vec2 {
+                            x: i as f32
+                                + self.upper_left_corner.x as f32
+                                + sub_i as f32 / RAY_PER_PIXELS as f32,
+                            y: j as f32
+                                + self.upper_left_corner.y as f32
+                                + sub_j as f32 / RAY_PER_PIXELS as f32,
+                        }));
                     }
                 }
                 self.rays.push(temp_rays);
@@ -82,18 +69,14 @@ pub struct Camera {
     // Point bas gauche
     lower_left_corner: Vec3,
 
-    // TODO: Ya pas plus propre?
-    // Tiles
-    pub tiles: Vec<Tile>,
+    // For iterator
+    current_tile: usize,
+    pub tile_count: Vec2<usize>,
 }
 
 impl Camera {
     pub fn new(
-        position: Vec3,
-        direction: Vec3,
-        fov: Vec2<f32>,
-        up: Vec3,
-        size: Vec2<usize>,
+        position: Vec3, direction: Vec3, fov: Vec2<f32>, up: Vec3, size: Vec2<usize>,
     ) -> Camera {
         let vertical_vector =
             (up - direction.normalized() * Vec3::dot(&direction, &up)).normalized() * fov.y;
@@ -103,32 +86,7 @@ impl Camera {
             position + direction - 0.5 * horizontal_vector - 0.5 * vertical_vector;
 
         // Pregenerate tiles
-        let mut tiles = vec![];
         let tile_count = (size / TILE_SIZE) + Vec2 { x: 1, y: 1 };
-
-        for i_tile in 0..tile_count.x {
-            for j_tile in 0..tile_count.y {
-                let tile_size = Vec2 {
-                    x: TILE_SIZE.x.min(size.x - TILE_SIZE.x * i_tile),
-                    y: TILE_SIZE.y.min(size.y - TILE_SIZE.y * j_tile),
-                };
-                let mut new_tile = Tile::new(
-                    tile_size,
-                    Vec2 {
-                        x: i_tile * TILE_SIZE.x,
-                        y: size.y.min(j_tile * TILE_SIZE.y),
-                    },
-                );
-                new_tile.preprocess(
-                    position,
-                    horizontal_vector,
-                    vertical_vector,
-                    lower_left_corner,
-                    size,
-                );
-                tiles.push(new_tile);
-            }
-        }
 
         Camera {
             position,
@@ -137,42 +95,68 @@ impl Camera {
             lower_left_corner,
             horizontal_vector,
             vertical_vector,
-            tiles,
+            current_tile: 0,
+            tile_count,
         }
     }
 
-    pub fn raw_get_ray(
-        origin: Vec3,
-        horizontal_vector: Vec3,
-        vertical_vector: Vec3,
-        lower_left_corner: Vec3,
-        position: Vec2<f32>,
-        size: Vec2<usize>,
-    ) -> Ray {
+    pub fn get_ray(&self, position: Vec2<f32>) -> Ray {
         Ray {
-            origin,
-            direction: (lower_left_corner
-                + horizontal_vector * position.x / size.x as f32
-                + vertical_vector * position.y / size.y as f32)
-                - origin,
+            origin: self.position,
+            direction: (self.lower_left_corner
+                + self.horizontal_vector * position.x / self.size.x as f32
+                + self.vertical_vector * position.y / self.size.y as f32)
+                - self.position,
         }
     }
 
     // NEXT: Remplacer Color par un spectre
-    pub fn merge_tile(&mut self, tile_index: usize) {
+    pub fn merge_tile(&mut self, tile: &Tile) {
         let mut index = 0;
         let mut x = 0;
         let mut y = 0;
-        let start = self.tiles[tile_index].upper_left_corner.x
-            + self.tiles[tile_index].upper_left_corner.y * self.size.x;
-        for color in self.tiles[tile_index].buffer.iter() {
+        let start = tile.upper_left_corner.x + tile.upper_left_corner.y * self.size.x;
+        for color in tile.buffer.iter() {
             self.buffer[start + x + y * self.size.x] = *color;
             x += 1;
-            if x >= self.tiles[tile_index].size.x {
+            if x >= tile.size.x {
                 x = 0;
                 y += 1;
             }
         }
+    }
+
+    pub fn reset_tiles(&mut self) {
+        self.current_tile = 0;
+    }
+
+    pub fn next_tile(&mut self) -> Option<Tile> {
+        // Check if all tiles has been passed
+        if self.current_tile > self.tile_count.x * self.tile_count.y - 1 {
+            return None;
+        }
+        let current = Vec2 {
+            x: self.current_tile % self.tile_count.x,
+            y: self.current_tile / self.tile_count.x,
+        };
+        println!("{:?}/{:?}", current, self.tile_count);
+        let tile_size = Vec2 {
+            x: TILE_SIZE.x.min(self.size.x - TILE_SIZE.x * current.x),
+            y: TILE_SIZE.y.min(self.size.y - TILE_SIZE.y * current.y),
+        };
+
+        let mut new_tile = Tile::new(
+            tile_size,
+            Vec2 {
+                x: current.x * TILE_SIZE.x,
+                y: self.size.y.min(current.y * TILE_SIZE.y),
+            },
+        );
+
+        new_tile.preprocess(&self);
+
+        self.current_tile += 1;
+        Some(new_tile)
     }
 
     pub fn save(&self) {
