@@ -2,6 +2,7 @@ use crate::raytracer::camera::Camera;
 use crate::raytracer::color::{Color, BLACK};
 use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::integrator::integrator::Integrator;
+use crate::raytracer::integrator::parallel_integrator::ParallelIntegrator;
 use crate::raytracer::integrator::simple_integrator::SimpleIntegrator;
 use crate::raytracer::lights::omnidirectional::Omnidirectional;
 use crate::raytracer::materials::material::Material;
@@ -130,7 +131,7 @@ fn main() {
     scene.add_light(light_omnidirectional);
     scene.add_light(light_omnidirectional_2);
 
-    let mut integrator = SimpleIntegrator::new(camera, scene);
+    let mut integrator = ParallelIntegrator::new(camera, scene);
 
     integrator.render();
 }
