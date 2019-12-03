@@ -20,6 +20,10 @@ pub struct Tile {
 }
 
 impl Tile {
+    pub fn free_mem(&mut self) {
+        self.rays = vec![];
+    }
+
     fn new(size: Vec2<usize>, upper_left_corner: Vec2<usize>) -> Tile {
         Tile {
             size,
@@ -139,7 +143,6 @@ impl Camera {
             x: self.current_tile % self.tile_count.x,
             y: self.current_tile / self.tile_count.x,
         };
-        println!("{:?}/{:?}", current, self.tile_count);
         let tile_size = Vec2 {
             x: TILE_SIZE.x.min(self.size.x - TILE_SIZE.x * current.x),
             y: TILE_SIZE.y.min(self.size.y - TILE_SIZE.y * current.y),
