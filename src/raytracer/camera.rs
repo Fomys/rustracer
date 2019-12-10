@@ -6,7 +6,6 @@ use crate::raytracer::color::{Color, BLACK, RED};
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::consts::{RAY_PER_PIXELS, TILE_SIZE};
 use crate::raytracer::utils::vec::{Vec2, Vec3};
-use minifb::{Window, WindowOptions};
 
 pub struct Tile {
     // Taille du buffer

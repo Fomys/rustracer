@@ -1,65 +1,46 @@
-use crate::raytracer::color::{Color, ColorInfo};
+use crate::raytracer::color::{Color, ColorInfo, BLACK, RED};
 use crate::raytracer::hittables::hittable::HitInfo;
-use crate::raytracer::materials::material::Material;
+use crate::raytracer::materials::material::{Material, MaterialPrimitive};
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
-use crate::raytracer::vec::Vec3;
+use crate::raytracer::utils::vec::Vec3;
+use rand::XorShiftRng;
 
 pub struct Transparent {
-    pub color: Color,
     pub refractive_index_div: f32,
 }
 
 impl Transparent {
     fn refract(&self, direction: &Vec3, normal: &Vec3) -> Option<Vec3> {
-        let uv = &direction.normalized();
-        let dt = Vec3::dot(uv, normal);
-        let discriminant = 1.0 - self.refractive_index_div * self.refractive_index_div * (1.0 - dt * dt);
+        let uv = direction.normalized();
+        let dt = Vec3::dot(&uv, normal);
+        let discriminant =
+            1.0 - self.refractive_index_div * self.refractive_index_div * (1.0 - dt * dt);
         if discriminant > 0.0 {
-            return Some(self.refractive_index_div * (uv - dt * normal) - &(discriminant.sqrt() * normal));
+            return Some(
+                self.refractive_index_div * (uv - normal * dt) - normal * discriminant.sqrt(),
+            );
         }
         None
     }
 }
 
-impl Material for Transparent {
-    fn get_color(&self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize) -> ColorInfo {
+impl MaterialPrimitive for Transparent {
+    fn get_color(
+        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut XorShiftRng,
+    ) -> Color {
         if max_iter > 0 {
-            // Reflected ray
-            let new_direction = hitinfo.rayon.reflect(&hitinfo.normal).normalized();
-            let reflected_color = scene.trace(
-                &Ray {
-                    origin: hitinfo.point + 0.1 * new_direction,
-                    direction: new_direction,
-                },
-                max_iter - 1,
-            );
-            // Refracted ray
-            let mut refracted_color: Option<Color> = None;
-            match self.refract(&hitinfo.rayon.direction, &hitinfo.normal) {
-                Some(tt) => {
-                    refracted_color = Some(scene.trace(
-                        &Ray {
-                            origin: hitinfo.point + 0.1 * tt,
-                            direction: tt,
-                        },
-                        max_iter - 1,
-                    ));
-                }
-                _ => {}
-            }
-
-            // Compute color
-            match refracted_color {
-                Some(toto) => {
-                    return toto;
-                }
-                _ => {
-                    return reflected_color;
-                }
+            if let Some(new_ray) = self.refract(&hitinfo.rayon.direction, &hitinfo.normal) {
+                return scene.trace(
+                    &Ray {
+                        origin: hitinfo.point + hitinfo.rayon.direction * 0.01,
+                        direction: new_ray,
+                    },
+                    max_iter - 1,
+                    rng,
+                );
             }
         }
-
-        self.color
+        BLACK
     }
 }

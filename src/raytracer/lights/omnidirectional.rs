@@ -9,8 +9,10 @@ pub struct Omnidirectional {
 }
 
 impl Light for Omnidirectional {
-    fn get_color(&self) -> Color {
+    fn get_color(&self, direction: &Vec3) -> Color {
         self.color
     }
-    fn get_position(&self) -> Vec3 { self.position }
+    fn get_position(&self) -> Vec3 {
+        self.position
+    }
 }

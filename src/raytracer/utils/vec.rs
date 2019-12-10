@@ -15,14 +15,28 @@ pub struct Vec3 {
 
 impl Vec3 {
     pub fn min(a: Vec3, b: Vec3) -> Vec3 {
-        Vec3 { x: a.x.min(a.y), y: a.y.min(b.y), z: a.z.min(b.z) }
+        Vec3 {
+            x: a.x.min(a.y),
+            y: a.y.min(b.y),
+            z: a.z.min(b.z),
+        }
     }
 
     pub fn max(a: Vec3, b: Vec3) -> Vec3 {
-        Vec3 { x: a.x.max(a.y), y: a.y.max(b.y), z: a.z.max(b.z) }
+        Vec3 {
+            x: a.x.max(a.y),
+            y: a.y.max(b.y),
+            z: a.z.max(b.z),
+        }
     }
 
-    pub fn zero() -> Vec3 { Vec3 { x: 0.0, y: 0.0, z: 0.0 } }
+    pub fn zero() -> Vec3 {
+        Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
 
     pub fn length(&self) -> f32 {
         self.squared_length().sqrt()
@@ -61,8 +75,10 @@ impl Vec3 {
     }
 }
 
-impl<T: Add<Output=T>> Add for Vec2<T>
-    where T: Add<T, Output=T> {
+impl<T: Add<Output = T>> Add for Vec2<T>
+where
+    T: Add<T, Output = T>,
+{
     type Output = Self;
 
     fn add(self, other: Self) -> Self::Output {
@@ -73,8 +89,10 @@ impl<T: Add<Output=T>> Add for Vec2<T>
     }
 }
 
-impl<T: Sub<Output=T>> Sub for Vec2<T>
-    where T: Sub<T, Output=T> {
+impl<T: Sub<Output = T>> Sub for Vec2<T>
+where
+    T: Sub<T, Output = T>,
+{
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
@@ -343,5 +361,3 @@ impl Div<f32> for Vec3 {
         }
     }
 }
-
-

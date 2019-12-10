@@ -1,6 +1,9 @@
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
+use crate::raytracer::hittables::plane::Plane;
+use crate::raytracer::hittables::triangle::Triangle;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::vec::Vec3;
+use std::fmt;
 
 pub struct Sphere {
     pub center: Vec3,
@@ -17,8 +20,18 @@ impl Sphere {
             center,
             radius,
             r_2: radius * radius,
-            mincoord: center - Vec3 { x: radius, y: radius, z: radius },
-            maxcoord: center + Vec3 { x: radius, y: radius, z: radius },
+            mincoord: center
+                - Vec3 {
+                    x: radius,
+                    y: radius,
+                    z: radius,
+                },
+            maxcoord: center
+                + Vec3 {
+                    x: radius,
+                    y: radius,
+                    z: radius,
+                },
         }
     }
 }
@@ -60,5 +73,27 @@ impl Hittable for Sphere {
 
     fn extremums(&self) -> (Vec3, Vec3) {
         (self.mincoord, self.maxcoord)
+    }
+
+    fn get_type(&self) -> Hittables {
+        Hittables::Sphere
+    }
+
+    fn to_sphere(&self) -> Option<Sphere> {
+        Some(Sphere {
+            center: self.center,
+            radius: self.radius,
+            r_2: self.r_2,
+            mincoord: self.mincoord,
+            maxcoord: self.maxcoord,
+        })
+    }
+
+    fn to_triangle(&self) -> Option<Triangle> {
+        None
+    }
+
+    fn to_plane(&self) -> Option<Plane> {
+        None
     }
 }

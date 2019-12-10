@@ -1,3 +1,4 @@
-pub mod texture;
-pub mod plain;
 pub mod image;
+pub mod plain;
+pub mod squares;
+pub mod texture;

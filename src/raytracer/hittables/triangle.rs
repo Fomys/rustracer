@@ -1,4 +1,6 @@
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
+use crate::raytracer::hittables::plane::Plane;
+use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::consts;
 use crate::raytracer::utils::vec::Vec3;
@@ -28,28 +30,44 @@ impl Triangle {
 
         // Calcul de la matrice de passage
         let matrice_passage = [
-            edge0.x, edge1.x, normal.x,
-            edge0.y, edge1.y, normal.y,
-            edge0.z, edge1.z, normal.z,
+            edge0.x, edge1.x, normal.x, edge0.y, edge1.y, normal.y, edge0.z, edge1.z, normal.z,
         ];
-        let det = matrice_passage[0] * matrice_passage[4] * matrice_passage[8] +
-            matrice_passage[1] * matrice_passage[5] * matrice_passage[6] +
-            matrice_passage[2] * matrice_passage[3] * matrice_passage[7] -
-            matrice_passage[2] * matrice_passage[4] * matrice_passage[6] -
-            matrice_passage[5] * matrice_passage[7] * matrice_passage[0] -
-            matrice_passage[8] * matrice_passage[1] * matrice_passage[3];
+        let det = matrice_passage[0] * matrice_passage[4] * matrice_passage[8]
+            + matrice_passage[1] * matrice_passage[5] * matrice_passage[6]
+            + matrice_passage[2] * matrice_passage[3] * matrice_passage[7]
+            - matrice_passage[2] * matrice_passage[4] * matrice_passage[6]
+            - matrice_passage[5] * matrice_passage[7] * matrice_passage[0]
+            - matrice_passage[8] * matrice_passage[1] * matrice_passage[3];
         let inv_det = 1.0 / det;
         // Inverse de la matrice de passage
         let matrice_passage_inverse = [
-            inv_det * (matrice_passage[4] * matrice_passage[8] - matrice_passage[5] * matrice_passage[7]),
-            inv_det * (matrice_passage[2] * matrice_passage[7] - matrice_passage[1] * matrice_passage[8]),
-            inv_det * (matrice_passage[1] * matrice_passage[5] - matrice_passage[2] * matrice_passage[4]),
-            inv_det * (matrice_passage[5] * matrice_passage[6] - matrice_passage[3] * matrice_passage[8]),
-            inv_det * (matrice_passage[0] * matrice_passage[8] - matrice_passage[2] * matrice_passage[6]),
-            inv_det * (matrice_passage[2] * matrice_passage[3] - matrice_passage[0] * matrice_passage[5]),
-            inv_det * (matrice_passage[3] * matrice_passage[7] - matrice_passage[4] * matrice_passage[6]),
-            inv_det * (matrice_passage[1] * matrice_passage[6] - matrice_passage[0] * matrice_passage[7]),
-            inv_det * (matrice_passage[0] * matrice_passage[4] - matrice_passage[1] * matrice_passage[3]),
+            inv_det
+                * (matrice_passage[4] * matrice_passage[8]
+                    - matrice_passage[5] * matrice_passage[7]),
+            inv_det
+                * (matrice_passage[2] * matrice_passage[7]
+                    - matrice_passage[1] * matrice_passage[8]),
+            inv_det
+                * (matrice_passage[1] * matrice_passage[5]
+                    - matrice_passage[2] * matrice_passage[4]),
+            inv_det
+                * (matrice_passage[5] * matrice_passage[6]
+                    - matrice_passage[3] * matrice_passage[8]),
+            inv_det
+                * (matrice_passage[0] * matrice_passage[8]
+                    - matrice_passage[2] * matrice_passage[6]),
+            inv_det
+                * (matrice_passage[2] * matrice_passage[3]
+                    - matrice_passage[0] * matrice_passage[5]),
+            inv_det
+                * (matrice_passage[3] * matrice_passage[7]
+                    - matrice_passage[4] * matrice_passage[6]),
+            inv_det
+                * (matrice_passage[1] * matrice_passage[6]
+                    - matrice_passage[0] * matrice_passage[7]),
+            inv_det
+                * (matrice_passage[0] * matrice_passage[4]
+                    - matrice_passage[1] * matrice_passage[3]),
         ];
         Triangle {
             a,
@@ -100,15 +118,15 @@ impl Hittable for Triangle {
                     point: intersection,
                     rayon: *rayon,
                     position: Vec3 {
-                        x: self.matrice_passage_inverse[0] * offset_intersect.x +
-                            self.matrice_passage_inverse[1] * offset_intersect.y +
-                            self.matrice_passage_inverse[2] * offset_intersect.z,
-                        y: self.matrice_passage_inverse[3] * offset_intersect.x +
-                            self.matrice_passage_inverse[4] * offset_intersect.y +
-                            self.matrice_passage_inverse[5] * offset_intersect.z,
-                        z: self.matrice_passage_inverse[6] * offset_intersect.x +
-                            self.matrice_passage_inverse[7] * offset_intersect.y +
-                            self.matrice_passage_inverse[8] * offset_intersect.z,
+                        x: self.matrice_passage_inverse[0] * offset_intersect.x
+                            + self.matrice_passage_inverse[1] * offset_intersect.y
+                            + self.matrice_passage_inverse[2] * offset_intersect.z,
+                        y: self.matrice_passage_inverse[3] * offset_intersect.x
+                            + self.matrice_passage_inverse[4] * offset_intersect.y
+                            + self.matrice_passage_inverse[5] * offset_intersect.z,
+                        z: self.matrice_passage_inverse[6] * offset_intersect.x
+                            + self.matrice_passage_inverse[7] * offset_intersect.y
+                            + self.matrice_passage_inverse[8] * offset_intersect.z,
                     },
                 });
             }
@@ -119,5 +137,21 @@ impl Hittable for Triangle {
 
     fn extremums(&self) -> (Vec3, Vec3) {
         (self.mincoord, self.maxcoord)
+    }
+
+    fn get_type(&self) -> Hittables {
+        Hittables::Triangle
+    }
+
+    fn to_sphere(&self) -> Option<Sphere> {
+        None
+    }
+
+    fn to_triangle(&self) -> Option<Triangle> {
+        None
+    }
+
+    fn to_plane(&self) -> Option<Plane> {
+        None
     }
 }
