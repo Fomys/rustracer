@@ -7,6 +7,7 @@ use crate::raytracer::hittables::plane::Plane;
 use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::integrator::integrator::Integrator;
 use crate::raytracer::integrator::parallel_integrator::ParallelIntegrator;
+use crate::raytracer::lights::diffuse_spot::DiffuseSpot;
 use crate::raytracer::lights::omnidirectional::Omnidirectional;
 use crate::raytracer::lights::rectangle::Rectangle;
 use crate::raytracer::lights::spot::Spot;
@@ -161,7 +162,7 @@ fn main() {
         },
         power: 100.0,
     });
-    let light_spot = Arc::new(Spot::new(
+    let light_spot = Arc::new(DiffuseSpot::new(
         Color {
             r: 1.0,
             g: 1.0,
@@ -178,6 +179,7 @@ fn main() {
             z: -2.0,
         },
         20.0,
+        30.0,
         100.0,
     ));
     let light_omnidirectional_2 = Arc::new(Omnidirectional {
@@ -233,7 +235,7 @@ fn main() {
         Arc::new(plain_color),
     );
 
-    scene.add_light(light_omnidirectional);
+    //    scene.add_light(light_omnidirectional);
     scene.add_light(light_spot);
 
     let mut integrator = ParallelIntegrator::new(camera, scene);
