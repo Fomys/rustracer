@@ -50,33 +50,33 @@ fn main() {
     );
     let sphere_2 = Sphere::new(
         Vec3 {
-            x: 2.1,
-            y: 0.0,
-            z: 5.0,
+            x: 3.0,
+            y: 4.0,
+            z: 10.0,
         },
         1.0,
     );
     let sphere_3 = Sphere::new(
         Vec3 {
-            x: -2.1,
-            y: 0.0,
-            z: 5.0,
+            x: 0.0,
+            y: 4.0,
+            z: 16.0,
         },
-        1.0,
+        2.0,
     );
     let sphere_4 = Sphere::new(
         Vec3 {
-            x: 1.0,
-            y: 0.0,
-            z: 7.0,
+            x: 0.5,
+            y: 4.0,
+            z: 10.5,
         },
-        1.0,
+        0.2,
     );
 
     let plan_1 = Plane::new(
         Vec3 {
             x: 0.0,
-            y: 1.5,
+            y: 4.0,
             z: 0.0,
         },
         Vec3 {
@@ -88,16 +88,16 @@ fn main() {
 
     let cyl_1 = Cylinder::new(
         Vec3 {
-            x: 0.0,
-            y: 0.0,
-            z: 5.0,
+            x: 0.5,
+            y: 4.0,
+            z: 10.5,
         },
         Vec3 {
             x: 0.0,
             y: 1.0,
             z: 0.0,
         },
-        0.5,
+        1.0,
     );
 
     let metal = Arc::new(materials::metal::Metal { fuzziness: 0.01 });
@@ -121,14 +121,14 @@ fn main() {
             b: 0.0,
         },
     };
-    let plain_color_3 = textures::plain::Plain {
+    let plain_color_3 = Arc::new(textures::plain::Plain {
         color: Color {
             r: 1.0,
             g: 1.0,
             b: 1.0,
         },
-    };
-    let plain_squares = textures::squares::Squares {};
+    });
+    let plain_squares = Arc::new(textures::squares::Squares {});
     let light_square = Arc::new(Rectangle {
         color: WHITE,
         origin: Vec3 {
@@ -158,7 +158,7 @@ fn main() {
         position: Vec3 {
             x: 0.0,
             y: -10.0,
-            z: 10.0,
+            z: 15.0,
         },
         power: 100.0,
     });
@@ -171,12 +171,12 @@ fn main() {
         Vec3 {
             x: 10.0,
             y: -12.0,
-            z: -5.0,
+            z: 15.0,
         },
         Vec3 {
             x: 2.0,
-            y: -1.0,
-            z: -2.0,
+            y: -2.0,
+            z: 2.0,
         },
         20.0,
         30.0,
@@ -202,40 +202,51 @@ fn main() {
             materials: vec![(0.05, diffuse.clone()), (1.0, metal.clone())],
         }),
         Arc::new(plain_color_2),
-    );
-    scene.add_primitive(
-        Arc::new(sphere_2),
-        Arc::new(Material {
-            materials: vec![(0.05, diffuse.clone()), (1.0, metal.clone())],
-        }),
-        Arc::new(plain_color),
-    );
+    );*/
 
-    scene.add_primitive(
-        Arc::new(sphere_3),
-        Arc::new(Material {
-            materials: vec![(0.05, diffuse.clone()), (1.0, metal.clone())],
-        }),
+    /*scene.add_primitive(
+        Arc::new(sphere_2),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
         Arc::new(plain_color),
     );*/
 
     scene.add_primitive(
+        Arc::new(sphere_4),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
+        Arc::new(plain_color),
+    );
+
+    /*scene.add_primitive(
+        Arc::new(sphere_3),
+        Arc::new(Material::new(vec![(1.0, plain_material.clone())])),
+        Arc::new(plain_color_3),
+    );*/
+
+    scene.add_primitive(
         Arc::new(plan_1),
-        Arc::new(Material {
-            materials: vec![(0.1, diffuse.clone()), (1.0, metal.clone())],
-        }),
-        Arc::new(plain_squares),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
+        plain_squares.clone(),
     );
 
     scene.add_primitive(
         Arc::new(cyl_1),
-        Arc::new(Material {
-            materials: vec![(0.5, diffuse.clone()), (1.0, metal.clone())],
-        }),
-        Arc::new(plain_color),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
+        plain_color_3.clone(),
     );
 
-    //    scene.add_light(light_omnidirectional);
+    scene.add_light(light_omnidirectional);
     scene.add_light(light_spot);
 
     let mut integrator = ParallelIntegrator::new(camera, scene);

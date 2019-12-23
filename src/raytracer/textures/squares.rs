@@ -13,9 +13,9 @@ impl Texture for Squares {
         }) % 2.0)
             > 1.0
         {
-            BLACK
-        } else {
             WHITE
+        } else {
+            BLACK
         };
         if ((if hitinfo.point.z > 0.0 {
             hitinfo.point.z
@@ -25,10 +25,10 @@ impl Texture for Squares {
             > 1.0
         {
             c1
-        } else if c1 == WHITE {
-            BLACK
-        } else {
+        } else if c1 == BLACK {
             WHITE
+        } else {
+            BLACK
         }
     }
 }

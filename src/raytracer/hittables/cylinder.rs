@@ -108,6 +108,13 @@ impl Hittable for Cylinder {
     }
 
     fn to_cylinder(&self) -> Option<Cylinder> {
-        None
+        Some(Cylinder {
+            origin: self.origin,
+            direction: self.direction,
+            radius: self.radius,
+            radius_2: self.radius_2,
+            mincoord: self.mincoord,
+            maxcoord: self.maxcoord,
+        })
     }
 }
