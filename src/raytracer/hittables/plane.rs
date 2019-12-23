@@ -1,3 +1,4 @@
+use crate::raytracer::hittables::cylinder::Cylinder;
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
 use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::hittables::triangle::Triangle;
@@ -87,7 +88,7 @@ impl Hittable for Plane {
         None
     }
 
-    fn extremums(&self) -> (Vec3, Vec3) {
+    fn extremum(&self) -> (Vec3, Vec3) {
         (self.mincoord, self.maxcoord)
     }
 
@@ -104,6 +105,15 @@ impl Hittable for Plane {
     }
 
     fn to_plane(&self) -> Option<Plane> {
+        Some(Plane {
+            origin: self.origin,
+            normal: self.normal,
+            mincoord: self.mincoord,
+            maxcoord: self.maxcoord,
+        })
+    }
+
+    fn to_cylinder(&self) -> Option<Cylinder> {
         None
     }
 }

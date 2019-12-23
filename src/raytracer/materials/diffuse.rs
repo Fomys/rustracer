@@ -1,10 +1,11 @@
+use std::sync::Arc;
+
 use crate::raytracer::color::{Color, BLACK, RED};
 use crate::raytracer::hittables::hittable::HitInfo;
 use crate::raytracer::materials::material::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
 use crate::raytracer::utils::vec::Vec3;
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Diffuse {}
@@ -16,19 +17,24 @@ impl MaterialPrimitive for Diffuse {
         let mut new_color = BLACK;
         let mut i = 0;
         for light in scene.lights.iter() {
-            let mut direction = light.get_position() - hitinfo.point;
-            if let Some(hitinfo_light) = scene.launch_ray_min_dist(
-                &Ray {
-                    origin: hitinfo.point + 0.01 * direction,
-                    direction,
-                },
-                direction.length(),
-            ) {
-            } else {
-                new_color +=
-                    light.get_color(&direction) * Vec3::dot(&direction, &hitinfo.normal).max(0.0);
+            for position in light.get_positions(rng).iter() {
+                i += 1;
+                let mut direction = position - hitinfo.point;
+                if scene
+                    .launch_ray_min_dist(
+                        &Ray {
+                            origin: hitinfo.point + 0.01 * direction,
+                            direction,
+                        },
+                        direction.length(),
+                    )
+                    .is_none()
+                {
+                    new_color += light.get_color(&direction)
+                        * Vec3::dot(&direction, &hitinfo.normal).max(0.0);
+                }
             }
         }
-        new_color
+        new_color / i as f32
     }
 }

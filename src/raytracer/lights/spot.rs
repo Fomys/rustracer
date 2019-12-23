@@ -2,25 +2,30 @@ use crate::raytracer::color::{Color, BLACK, WHITE};
 use crate::raytracer::lights::light::Light;
 use crate::raytracer::utils::vec::Vec3;
 
-pub struct Directional {
+pub struct Spot {
     pub color: Color,
     pub position: Vec3,
     pub direction: Vec3,
     pub angle: f32,
+    pub power: f32,
 }
 
-impl Directional {
-    pub fn new(color: Color, position: Vec3, direction: Vec3, angle: f32) -> Directional {
-        Directional {
+impl Spot {
+    pub fn new(color: Color, position: Vec3, direction: Vec3, angle: f32, power: f32) -> Spot {
+        Spot {
             color,
             position,
             direction: direction.normalized(),
             angle: angle.to_radians(),
+            power: power,
         }
     }
 }
 
-impl Light for Directional {
+impl Light for Spot {
+    fn get_positions(&self, rng: &mut rand::XorShiftRng) -> Vec<Vec3> {
+        vec![self.position]
+    }
     fn get_color(&self, direction: &Vec3) -> Color {
         if (Vec3::dot(&self.direction, &direction) / direction.length())
             .acos()
@@ -29,10 +34,7 @@ impl Light for Directional {
         {
             BLACK
         } else {
-            self.color
+            self.color * self.power / (0.7 * direction.length() + 1.5 * direction.squared_length())
         }
-    }
-    fn get_position(&self) -> Vec3 {
-        self.position
     }
 }

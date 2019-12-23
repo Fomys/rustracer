@@ -1,18 +1,19 @@
+use std::sync::Arc;
+
 use crate::raytracer::camera::Camera;
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::{Color, BLACK, WHITE};
+use crate::raytracer::hittables::cylinder::Cylinder;
 use crate::raytracer::hittables::plane::Plane;
 use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::integrator::integrator::Integrator;
 use crate::raytracer::integrator::parallel_integrator::ParallelIntegrator;
-use crate::raytracer::integrator::simple_integrator::SimpleIntegrator;
-use crate::raytracer::integrator::vulkano_integrator::VulkanoIntegrator;
-use crate::raytracer::lights::directionnal::Directional;
 use crate::raytracer::lights::omnidirectional::Omnidirectional;
+use crate::raytracer::lights::rectangle::Rectangle;
+use crate::raytracer::lights::spot::Spot;
 use crate::raytracer::materials::material::Material;
 use crate::raytracer::scene::Scene;
 use crate::raytracer::utils::vec::{Vec2, Vec3};
 use crate::raytracer::{materials, textures};
-use std::sync::Arc;
 
 mod raytracer;
 
@@ -84,6 +85,20 @@ fn main() {
         },
     );
 
+    let cyl_1 = Cylinder::new(
+        Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 5.0,
+        },
+        Vec3 {
+            x: 0.0,
+            y: 1.0,
+            z: 0.0,
+        },
+        0.5,
+    );
+
     let metal = Arc::new(materials::metal::Metal { fuzziness: 0.01 });
     let diffuse = Arc::new(materials::diffuse::Diffuse {});
     let transparent = Arc::new(materials::transparent::Transparent {
@@ -113,6 +128,25 @@ fn main() {
         },
     };
     let plain_squares = textures::squares::Squares {};
+    let light_square = Arc::new(Rectangle {
+        color: WHITE,
+        origin: Vec3 {
+            x: 10.0,
+            y: -5.0,
+            z: 8.0,
+        },
+        dir1: Vec3 {
+            x: -20.0,
+            y: 0.0,
+            z: 0.0,
+        },
+        dir2: Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.1,
+        },
+        power: 100.0,
+    });
 
     let light_omnidirectional = Arc::new(Omnidirectional {
         color: Color {
@@ -123,10 +157,11 @@ fn main() {
         position: Vec3 {
             x: 0.0,
             y: -10.0,
-            z: 0.0,
+            z: 10.0,
         },
+        power: 100.0,
     });
-    let light_directionnal = Arc::new(Directional::new(
+    let light_spot = Arc::new(Spot::new(
         Color {
             r: 1.0,
             g: 1.0,
@@ -134,15 +169,16 @@ fn main() {
         },
         Vec3 {
             x: 10.0,
-            y: -10.0,
-            z: -1.0,
+            y: -12.0,
+            z: -5.0,
         },
         Vec3 {
             x: 2.0,
             y: -1.0,
-            z: -1.0,
+            z: -2.0,
         },
         20.0,
+        100.0,
     ));
     let light_omnidirectional_2 = Arc::new(Omnidirectional {
         color: Color {
@@ -155,9 +191,10 @@ fn main() {
             y: 10.0,
             z: 0.0,
         },
+        power: 10.0,
     });
 
-    scene.add_primitive(
+    /*scene.add_primitive(
         Arc::new(sphere),
         Arc::new(Material {
             materials: vec![(0.05, diffuse.clone()), (1.0, metal.clone())],
@@ -178,18 +215,26 @@ fn main() {
             materials: vec![(0.05, diffuse.clone()), (1.0, metal.clone())],
         }),
         Arc::new(plain_color),
-    );
+    );*/
 
     scene.add_primitive(
         Arc::new(plan_1),
         Arc::new(Material {
-            materials: vec![(0.05, diffuse.clone()), (1.0, metal.clone())],
+            materials: vec![(0.1, diffuse.clone()), (1.0, metal.clone())],
         }),
         Arc::new(plain_squares),
     );
 
-    //scene.add_light(light_omnidirectional);
-    scene.add_light(light_directionnal);
+    scene.add_primitive(
+        Arc::new(cyl_1),
+        Arc::new(Material {
+            materials: vec![(0.5, diffuse.clone()), (1.0, metal.clone())],
+        }),
+        Arc::new(plain_color),
+    );
+
+    scene.add_light(light_omnidirectional);
+    scene.add_light(light_spot);
 
     let mut integrator = ParallelIntegrator::new(camera, scene);
 
