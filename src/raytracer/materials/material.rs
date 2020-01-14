@@ -1,7 +1,8 @@
-use crate::raytracer::color::{Color, ColorInfo, BLACK};
-use crate::raytracer::hittables::hittable::HitInfo;
-use crate::raytracer::scene::Scene;
 use std::sync::Arc;
+
+use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::hittables::HitInfo;
+use crate::raytracer::scene::Scene;
 
 pub trait MaterialPrimitive: Sync + Send {
     fn get_color(

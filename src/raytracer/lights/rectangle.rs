@@ -1,8 +1,9 @@
+use rand::Rng;
+
 use crate::raytracer::color::Color;
 use crate::raytracer::lights::light::Light;
-use crate::raytracer::utils::consts::SOURCE_PER_SURFACE;
-use crate::raytracer::utils::vec::Vec3;
-use rand::Rng;
+use crate::raytracer::utils::Vec3;
+use crate::raytracer::utils::SOURCE_PER_SURFACE;
 
 pub struct Rectangle {
     pub color: Color,

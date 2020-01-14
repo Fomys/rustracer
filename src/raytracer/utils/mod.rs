@@ -1,2 +1,5 @@
-pub mod consts;
-pub mod vec;
+mod consts;
+mod vec;
+
+pub use consts::*;
+pub use vec::*;

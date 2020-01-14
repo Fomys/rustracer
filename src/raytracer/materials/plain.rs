@@ -1,8 +1,9 @@
-use crate::raytracer::color::{Color, WHITE};
-use crate::raytracer::hittables::hittable::HitInfo;
-use crate::raytracer::materials::material::MaterialPrimitive;
-use crate::raytracer::scene::Scene;
 use rand::XorShiftRng;
+
+use crate::raytracer::color::{Color, WHITE};
+use crate::raytracer::hittables::HitInfo;
+use crate::raytracer::materials::MaterialPrimitive;
+use crate::raytracer::scene::Scene;
 
 pub struct Plain {}
 

@@ -1,6 +1,6 @@
-use crate::raytracer::color::{Color, BLACK, WHITE};
+use crate::raytracer::color::{Color, BLACK};
 use crate::raytracer::lights::light::Light;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::Vec3;
 
 pub struct DiffuseSpot {
     pub color: Color,

@@ -1,9 +1,10 @@
+use crate::raytracer::hittables::circle::Circle;
 use crate::raytracer::hittables::cylinder::Cylinder;
 use crate::raytracer::hittables::plane::Plane;
 use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::hittables::triangle::Triangle;
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::Vec3;
 
 #[derive(PartialEq)]
 pub enum Hittables {
@@ -11,6 +12,7 @@ pub enum Hittables {
     Plane,
     Sphere,
     Cylinder,
+    Circle,
 }
 
 #[derive(Debug)]
@@ -24,10 +26,21 @@ pub struct HitInfo {
 
 pub trait Hittable: Sync + Send {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo>;
-    fn extremum(&self) -> (Vec3, Vec3);
     fn get_type(&self) -> Hittables;
-    fn to_sphere(&self) -> Option<Sphere>;
-    fn to_triangle(&self) -> Option<Triangle>;
-    fn to_plane(&self) -> Option<Plane>;
-    fn to_cylinder(&self) -> Option<Cylinder>;
+
+    fn to_sphere(&self) -> Option<Sphere> {
+        None
+    }
+    fn to_triangle(&self) -> Option<Triangle> {
+        None
+    }
+    fn to_plane(&self) -> Option<Plane> {
+        None
+    }
+    fn to_cylinder(&self) -> Option<Cylinder> {
+        None
+    }
+    fn to_circle(&self) -> Option<Circle> {
+        None
+    }
 }

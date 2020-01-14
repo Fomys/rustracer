@@ -1,4 +1,9 @@
-pub mod image;
-pub mod plain;
-pub mod squares;
-pub mod texture;
+mod image;
+mod plain;
+mod squares;
+mod texture;
+
+pub use self::image::Image;
+pub use plain::Plain;
+pub use squares::Squares;
+pub use texture::Texture;

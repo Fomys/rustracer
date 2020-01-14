@@ -1,16 +1,13 @@
-use std::path::Path;
 use std::sync::Arc;
 
 use crate::raytracer::color::Color;
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
-
-use crate::raytracer::hittables::sphere::Sphere;
-use crate::raytracer::lights::light::Light;
-use crate::raytracer::materials::material::Material;
+use crate::raytracer::hittables::{HitInfo, Hittable};
+use crate::raytracer::lights::Light;
+use crate::raytracer::materials::Material;
 use crate::raytracer::primitive::Primitive;
 use crate::raytracer::ray::Ray;
-use crate::raytracer::textures::texture::Texture;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::textures::Texture;
+use crate::raytracer::utils::Vec3;
 
 pub struct Scene {
     pub(crate) primitives: Vec<Primitive>,
@@ -84,7 +81,6 @@ impl Scene {
 
     pub fn trace(&self, rayon: &Ray, max_iter: usize, rng: &mut rand::XorShiftRng) -> Color {
         let (closest_hitinfo, closest_primitive) = self.launch_ray(rayon);
-
         if let Some(object) = closest_primitive {
             // Get material color (color due to reflect, refract...)
             let material_color = object

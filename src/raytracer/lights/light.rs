@@ -1,5 +1,5 @@
 use crate::raytracer::color::Color;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::Vec3;
 
 pub trait Light: Sync + Send {
     fn get_positions(&self, rng: &mut rand::XorShiftRng) -> Vec<Vec3>;

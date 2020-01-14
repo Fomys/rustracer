@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
-use crate::raytracer::color::{Color, BLACK, RED};
-use crate::raytracer::hittables::hittable::HitInfo;
+use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::materials::material::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::Vec3;
 
 #[derive(Clone)]
 pub struct Diffuse {}

@@ -1,11 +1,10 @@
-use std::rc::Rc;
 use std::sync::Arc;
 
 use crate::raytracer::color::Color;
-use crate::raytracer::hittables::hittable::HitInfo;
-use crate::raytracer::texture_maps::texture_map::TextureMap;
+use crate::raytracer::hittables::HitInfo;
+use crate::raytracer::texture_maps::TextureMap;
 use crate::raytracer::textures::texture::Texture;
-use crate::raytracer::utils::vec::Vec2;
+use crate::raytracer::utils::Vec2;
 
 // Voilà la struct qui pose problème, il contient une copie de la texture map, mais la texture n'est
 // pas identique pour tous (car chaque primitive ne va pas afficher la même portion de la texturemap)
@@ -32,8 +31,7 @@ impl Texture for Image {
         if hitinfo.position.x > 1.0 {
             println!("Nouveau rayon, contact à: {:?}", hitinfo.position);
         }
-        let pos = self.origin + hitinfo.position.x * self.dir1 +
-            hitinfo.position.y * self.dir2;
+        let pos = self.origin + hitinfo.position.x * self.dir1 + hitinfo.position.y * self.dir2;
         self.image.get_pixel(pos.x, pos.y)
     }
 }

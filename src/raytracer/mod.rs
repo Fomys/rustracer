@@ -7,7 +7,7 @@ pub mod utils;
 
 // Folders
 pub mod hittables;
-pub mod integrator;
+pub mod integrators;
 pub mod lights;
 pub mod materials;
 pub mod texture_maps;

@@ -1,4 +1,4 @@
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::Vec3;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Ray {
@@ -12,7 +12,8 @@ impl Ray {
     }
 
     pub fn reflect(&self, normal: &Vec3) -> Vec3 {
-        2.0 * normal.normalized() * Vec3::dot(&normal.normalized(), &-self.direction) - -self.direction
+        2.0 * normal.normalized() * Vec3::dot(&normal.normalized(), &-self.direction)
+            - -self.direction
     }
 
     pub fn normalized(&self) -> Ray {

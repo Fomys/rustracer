@@ -1,10 +1,6 @@
-use crate::raytracer::hittables::cylinder::Cylinder;
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
-use crate::raytracer::hittables::sphere::Sphere;
-use crate::raytracer::hittables::triangle::Triangle;
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::consts;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::{Vec3, ZERO};
 
 pub struct Plane {
     origin: Vec3,
@@ -34,7 +30,7 @@ impl Plane {
                 y: 0.0,
                 z: 0.0,
             },
-        ) <= consts::ZERO
+        ) <= ZERO
         {
             mincoord.x = origin.x;
             maxcoord.x = origin.x;
@@ -45,7 +41,7 @@ impl Plane {
                 y: 1.0,
                 z: 0.0,
             },
-        ) <= consts::ZERO
+        ) <= ZERO
         {
             mincoord.y = origin.y;
             maxcoord.y = origin.y;
@@ -56,7 +52,7 @@ impl Plane {
                 y: 0.0,
                 z: 1.0,
             },
-        ) <= consts::ZERO
+        ) <= ZERO
         {
             mincoord.z = origin.z;
             maxcoord.z = origin.z;
@@ -73,7 +69,7 @@ impl Plane {
 impl Hittable for Plane {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
         let denom = Vec3::dot(&self.normal, &rayon.direction);
-        if denom.abs() >= consts::ZERO {
+        if denom.abs() >= ZERO {
             let t = Vec3::dot(&(self.origin - rayon.origin), &self.normal) / denom;
             if t >= 0.0 {
                 return Some(HitInfo {
@@ -88,20 +84,8 @@ impl Hittable for Plane {
         None
     }
 
-    fn extremum(&self) -> (Vec3, Vec3) {
-        (self.mincoord, self.maxcoord)
-    }
-
     fn get_type(&self) -> Hittables {
         Hittables::Plane
-    }
-
-    fn to_sphere(&self) -> Option<Sphere> {
-        None
-    }
-
-    fn to_triangle(&self) -> Option<Triangle> {
-        None
     }
 
     fn to_plane(&self) -> Option<Plane> {
@@ -111,9 +95,5 @@ impl Hittable for Plane {
             mincoord: self.mincoord,
             maxcoord: self.maxcoord,
         })
-    }
-
-    fn to_cylinder(&self) -> Option<Cylinder> {
-        None
     }
 }

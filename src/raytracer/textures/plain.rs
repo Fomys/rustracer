@@ -1,5 +1,5 @@
 use crate::raytracer::color::Color;
-use crate::raytracer::hittables::hittable::HitInfo;
+use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::textures::texture::Texture;
 
 #[derive(Debug, Clone, Copy)]

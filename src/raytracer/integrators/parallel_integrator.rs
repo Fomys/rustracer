@@ -1,12 +1,12 @@
-use crate::raytracer::camera::Camera;
-use crate::raytracer::color::{Color, BLACK, RED};
-use crate::raytracer::integrator::integrator::Integrator;
-use crate::raytracer::ray::Ray;
-use crate::raytracer::scene::Scene;
-use crate::raytracer::utils::consts::{MAX_ITERATION, ZERO};
-use crate::raytracer::utils::vec::Vec2;
 use std::sync::{mpsc, Arc};
+
 use threadpool::ThreadPool;
+
+use crate::raytracer::camera::Camera;
+use crate::raytracer::color::BLACK;
+use crate::raytracer::integrators::Integrator;
+use crate::raytracer::scene::Scene;
+use crate::raytracer::utils::MAX_ITERATION;
 
 pub struct ParallelIntegrator {
     camera: Camera,

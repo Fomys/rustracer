@@ -1,21 +1,16 @@
-use crate::raytracer::hittables::cylinder::Cylinder;
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
-use crate::raytracer::hittables::plane::Plane;
-use crate::raytracer::hittables::triangle::Triangle;
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::vec::Vec3;
-use std::fmt;
+use crate::raytracer::utils::Vec3;
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    r_2: f32,
+    pub r_2: f32,
     mincoord: Vec3,
     maxcoord: Vec3,
 }
 
 impl Sphere {
-    #[allow(dead_code)]
     pub(crate) fn new(center: Vec3, radius: f32) -> Sphere {
         Sphere {
             center,
@@ -43,7 +38,7 @@ impl Hittable for Sphere {
         let a = Vec3::dot(&rayon.direction, &rayon.direction);
         let b = Vec3::dot(&rayon.direction, &oc);
         let c = Vec3::dot(&oc, &oc) - self.r_2;
-        let delta = b * b - a * c;
+        let delta = b.powi(2) - a * c;
         if delta >= 0.0 {
             let sqrt_delta = delta.sqrt();
             let distance = (-b - sqrt_delta) / a;
@@ -72,10 +67,6 @@ impl Hittable for Sphere {
         None
     }
 
-    fn extremum(&self) -> (Vec3, Vec3) {
-        (self.mincoord, self.maxcoord)
-    }
-
     fn get_type(&self) -> Hittables {
         Hittables::Sphere
     }
@@ -88,17 +79,5 @@ impl Hittable for Sphere {
             mincoord: self.mincoord,
             maxcoord: self.maxcoord,
         })
-    }
-
-    fn to_triangle(&self) -> Option<Triangle> {
-        None
-    }
-
-    fn to_plane(&self) -> Option<Plane> {
-        None
-    }
-
-    fn to_cylinder(&self) -> Option<Cylinder> {
-        None
     }
 }

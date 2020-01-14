@@ -1,10 +1,6 @@
-use crate::raytracer::hittables::cylinder::Cylinder;
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
-use crate::raytracer::hittables::plane::Plane;
-use crate::raytracer::hittables::sphere::Sphere;
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::consts;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::{Vec3, ZERO};
 
 pub struct Triangle {
     pub a: Vec3,
@@ -91,7 +87,8 @@ impl Triangle {
 impl Hittable for Triangle {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
         let denom = Vec3::dot(&self.normal, &rayon.direction);
-        if denom.abs() >= consts::ZERO {
+        // Check if ray intersect triangle plane
+        if denom.abs() >= ZERO {
             // Find intersection with plane
             let t = Vec3::dot(&(self.a - rayon.origin), &self.normal) / denom;
             if t >= 0.0 {
@@ -118,7 +115,8 @@ impl Hittable for Triangle {
                     normal: self.normal,
                     point: intersection,
                     rayon: *rayon,
-                    position: Vec3 {
+                    position: Vec3::zero(),
+                    /*{
                         x: self.matrice_passage_inverse[0] * offset_intersect.x
                             + self.matrice_passage_inverse[1] * offset_intersect.y
                             + self.matrice_passage_inverse[2] * offset_intersect.z,
@@ -128,7 +126,7 @@ impl Hittable for Triangle {
                         z: self.matrice_passage_inverse[6] * offset_intersect.x
                             + self.matrice_passage_inverse[7] * offset_intersect.y
                             + self.matrice_passage_inverse[8] * offset_intersect.z,
-                    },
+                    },*/
                 });
             }
         }
@@ -136,16 +134,8 @@ impl Hittable for Triangle {
         None
     }
 
-    fn extremum(&self) -> (Vec3, Vec3) {
-        (self.mincoord, self.maxcoord)
-    }
-
     fn get_type(&self) -> Hittables {
         Hittables::Triangle
-    }
-
-    fn to_sphere(&self) -> Option<Sphere> {
-        None
     }
 
     fn to_triangle(&self) -> Option<Triangle> {
@@ -164,12 +154,5 @@ impl Hittable for Triangle {
             matrice_passage: self.matrice_passage,
             matrice_passage_inverse: self.matrice_passage_inverse,
         })
-    }
-
-    fn to_plane(&self) -> Option<Plane> {
-        None
-    }
-    fn to_cylinder(&self) -> Option<Cylinder> {
-        None
     }
 }

@@ -75,9 +75,9 @@ impl Vec3 {
     }
 }
 
-impl<T: Add<Output = T>> Add for Vec2<T>
-where
-    T: Add<T, Output = T>,
+impl<T: Add<Output=T>> Add for Vec2<T>
+    where
+        T: Add<T, Output=T>,
 {
     type Output = Self;
 
@@ -89,9 +89,9 @@ where
     }
 }
 
-impl<T: Sub<Output = T>> Sub for Vec2<T>
-where
-    T: Sub<T, Output = T>,
+impl<T: Sub<Output=T>> Sub for Vec2<T>
+    where
+        T: Sub<T, Output=T>,
 {
     type Output = Self;
 

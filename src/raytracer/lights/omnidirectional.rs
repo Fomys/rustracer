@@ -1,6 +1,6 @@
 use crate::raytracer::color::Color;
 use crate::raytracer::lights::light::Light;
-use crate::raytracer::utils::vec::Vec3;
+use crate::raytracer::utils::Vec3;
 
 pub struct Omnidirectional {
     pub color: Color,

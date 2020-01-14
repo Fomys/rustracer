@@ -1,7 +1,8 @@
-use crate::raytracer::hittables::hittable::Hittable;
-use crate::raytracer::materials::material::{Material, MaterialPrimitive};
-use crate::raytracer::textures::texture::Texture;
 use std::sync::Arc;
+
+use crate::raytracer::hittables::Hittable;
+use crate::raytracer::materials::Material;
+use crate::raytracer::textures::Texture;
 
 pub struct Primitive {
     pub hittable: Arc<dyn Hittable>,

@@ -1,11 +1,12 @@
-use crate::raytracer::color::{Color, ColorInfo, BLACK};
-use crate::raytracer::hittables::hittable::HitInfo;
-use crate::raytracer::materials::material::MaterialPrimitive;
+use rand::Rng;
+
+use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::hittables::HitInfo;
+use crate::raytracer::materials::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
-use crate::raytracer::utils::consts::RAY_PER_REFLECT;
-use crate::raytracer::utils::vec::Vec3;
-use rand::Rng;
+use crate::raytracer::utils::Vec3;
+use crate::raytracer::utils::RAY_PER_REFLECT;
 
 #[derive(Clone)]
 pub struct Metal {

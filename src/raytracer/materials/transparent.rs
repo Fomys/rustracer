@@ -1,10 +1,11 @@
-use crate::raytracer::color::{Color, ColorInfo, BLACK, RED};
-use crate::raytracer::hittables::hittable::HitInfo;
-use crate::raytracer::materials::material::{Material, MaterialPrimitive};
+use rand::XorShiftRng;
+
+use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::hittables::HitInfo;
+use crate::raytracer::materials::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
-use crate::raytracer::utils::vec::Vec3;
-use rand::XorShiftRng;
+use crate::raytracer::utils::Vec3;
 
 pub struct Transparent {
     pub refractive_index_div: f32,
@@ -34,7 +35,7 @@ impl MaterialPrimitive for Transparent {
                 return scene.trace(
                     &Ray {
                         origin: hitinfo.point + hitinfo.rayon.direction * 0.01,
-                        direction: new_ray,
+                        direction: hitinfo.rayon.direction,
                     },
                     max_iter - 1,
                     rng,

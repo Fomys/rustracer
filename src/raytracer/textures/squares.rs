@@ -1,5 +1,5 @@
 use crate::raytracer::color::{Color, BLACK, WHITE};
-use crate::raytracer::hittables::hittable::HitInfo;
+use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::textures::texture::Texture;
 
 pub struct Squares {}
