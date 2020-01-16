@@ -26,6 +26,7 @@ impl Integrator for ParallelIntegrator {
     fn preprocess(&mut self) {}
 
     fn render(&mut self) {
+        let mut merged = 0;
         let (tx, rx) = mpsc::channel();
         let pool: ThreadPool = threadpool::Builder::new()
             .thread_name("Un pti raytracer".into())
@@ -33,8 +34,20 @@ impl Integrator for ParallelIntegrator {
         let total = self.camera.tile_count.x * self.camera.tile_count.y;
         let mut launched = 0;
         while let Some(mut tile) = self.camera.next_tile() {
+            while pool.queued_count() > 5 {
+                for tile in rx.try_iter() {
+                    self.camera.merge_tile(&tile);
+                    merged += 1;
+                }
+            }
             launched += 1;
-            println!("Launch {}/{}", launched, total);
+            println!(
+                "{} launched/{} waiting/{} merged/{} total",
+                launched,
+                pool.queued_count(),
+                merged,
+                total
+            );
             let tx_thread = tx.clone();
             let scene_thread = self.scene.clone();
             pool.execute(move || {
@@ -54,7 +67,6 @@ impl Integrator for ParallelIntegrator {
                 tx_thread.send(tile);
             });
         }
-        let mut merged = 0;
         while pool.active_count() > 0 {
             for tile in rx.try_iter() {
                 self.camera.merge_tile(&tile);

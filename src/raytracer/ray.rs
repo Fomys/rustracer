@@ -23,7 +23,6 @@ impl Ray {
         }
     }
 
-    #[allow(dead_code)]
     pub fn normalize(&mut self) {
         self.direction.normalize();
     }

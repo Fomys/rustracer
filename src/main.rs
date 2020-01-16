@@ -138,6 +138,11 @@ fn main() {
         },
     });
     let plain_squares = Arc::new(textures::Squares {});
+    let texture_perlin = Arc::new(textures::Perlin::new(Color {
+        r: 0.2,
+        g: 0.8,
+        b: 0.5,
+    }));
     let light_square = Arc::new(Rectangle {
         color: WHITE,
         origin: Vec3 {
@@ -208,7 +213,7 @@ fn main() {
     scene.add_primitive(
         Arc::new(sphere),
         Arc::new(Material::new(vec![(1.0, transparent.clone())])),
-        plain_color_2.clone(),
+        texture_perlin.clone(),
     );
 
     scene.add_primitive(
@@ -217,7 +222,7 @@ fn main() {
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
         ])),
-        plain_color.clone(),
+        texture_perlin.clone(),
     );
     scene.add_primitive(
         Arc::new(sphere_4),
@@ -225,13 +230,13 @@ fn main() {
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
         ])),
-        plain_color.clone(),
+        texture_perlin.clone(),
     );
 
     scene.add_primitive(
         Arc::new(sphere_3),
         Arc::new(Material::new(vec![(1.0, transparent.clone())])),
-        plain_color_3.clone(),
+        texture_perlin.clone(),
     );
 
     scene.add_primitive(
@@ -249,7 +254,7 @@ fn main() {
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
         ])),
-        plain_color_2.clone(),
+        texture_perlin.clone(),
     );
 
     scene.add_primitive(
@@ -258,7 +263,7 @@ fn main() {
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
         ])),
-        plain_color_3.clone(),
+        texture_perlin.clone(),
     );
 
     scene.add_light(light_omnidirectional);
