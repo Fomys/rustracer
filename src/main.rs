@@ -143,39 +143,39 @@ fn main() {
         g: 0.8,
         b: 0.5,
     }));
-    let light_square = Arc::new(Rectangle {
-        color: WHITE,
-        origin: Vec3 {
+    let light_square = Arc::new(Rectangle::new(
+        WHITE,
+        Vec3 {
             x: 10.0,
             y: -5.0,
             z: 8.0,
         },
-        dir1: Vec3 {
+        Vec3 {
             x: -20.0,
             y: 0.0,
             z: 0.0,
         },
-        dir2: Vec3 {
+        Vec3 {
             x: 0.0,
             y: 0.0,
             z: 0.1,
         },
-        power: 100.0,
-    });
+        100.0,
+    ));
 
-    let light_omnidirectional = Arc::new(Omnidirectional {
-        color: Color {
+    let light_omnidirectional = Arc::new(Omnidirectional::new(
+        Color {
             r: 1.0,
             g: 1.0,
             b: 1.0,
         },
-        position: Vec3 {
+        Vec3 {
             x: 0.0,
             y: -10.0,
             z: 15.0,
         },
-        power: 100.0,
-    });
+        100.0,
+    ));
     let light_spot = Arc::new(DiffuseSpot::new(
         Color {
             r: 1.0,
@@ -196,19 +196,19 @@ fn main() {
         30.0,
         100.0,
     ));
-    let light_omnidirectional_2 = Arc::new(Omnidirectional {
-        color: Color {
+    let light_omnidirectional_2 = Arc::new(Omnidirectional::new(
+        Color {
             r: 0.5,
             g: 0.0,
             b: 1.0,
         },
-        position: Vec3 {
+        Vec3 {
             x: 10.0,
             y: 10.0,
             z: 0.0,
         },
-        power: 10.0,
-    });
+        10.0,
+    ));
 
     scene.add_primitive(
         Arc::new(sphere),

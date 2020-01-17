@@ -3,11 +3,12 @@ use crate::raytracer::lights::light::Light;
 use crate::raytracer::utils::Vec3;
 
 pub struct Spot {
-    pub color: Color,
-    pub position: Vec3,
-    pub direction: Vec3,
-    pub angle: f32,
-    pub power: f32,
+    color: Color,
+    position: Vec3,
+    direction: Vec3,
+    angle: f32,
+    power: f32,
+    color_power: Color,
 }
 
 impl Spot {
@@ -17,7 +18,8 @@ impl Spot {
             position,
             direction: direction.normalized(),
             angle: angle.to_radians(),
-            power: power,
+            power,
+            color_power: color * power,
         }
     }
 }
@@ -34,7 +36,7 @@ impl Light for Spot {
         {
             BLACK
         } else {
-            self.color * self.power / (0.7 * direction.length() + 1.5 * direction.squared_length())
+            self.color_power / (0.7 * direction.length() + 1.5 * direction.squared_length())
         }
     }
 }

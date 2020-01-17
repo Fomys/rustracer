@@ -3,9 +3,21 @@ use crate::raytracer::lights::light::Light;
 use crate::raytracer::utils::Vec3;
 
 pub struct Omnidirectional {
-    pub color: Color,
-    pub position: Vec3,
-    pub power: f32,
+    color: Color,
+    position: Vec3,
+    power: f32,
+    color_power: Color,
+}
+
+impl Omnidirectional {
+    pub fn new(color: Color, position: Vec3, power: f32) -> Omnidirectional {
+        Omnidirectional {
+            color,
+            position,
+            power,
+            color_power: color * power,
+        }
+    }
 }
 
 impl Light for Omnidirectional {
@@ -13,6 +25,6 @@ impl Light for Omnidirectional {
         vec![self.position]
     }
     fn get_color(&self, direction: &Vec3) -> Color {
-        self.color * self.power / (0.7 * direction.length() + 1.5 * direction.squared_length())
+        self.color_power / (0.7 * direction.length() + 1.5 * direction.squared_length())
     }
 }

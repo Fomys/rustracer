@@ -6,11 +6,25 @@ use crate::raytracer::utils::Vec3;
 use crate::raytracer::utils::SOURCE_PER_SURFACE;
 
 pub struct Rectangle {
-    pub color: Color,
-    pub origin: Vec3,
-    pub dir1: Vec3,
-    pub dir2: Vec3,
-    pub power: f32,
+    color: Color,
+    origin: Vec3,
+    dir1: Vec3,
+    dir2: Vec3,
+    power: f32,
+    color_power: Color,
+}
+
+impl Rectangle {
+    pub fn new(color: Color, origin: Vec3, dir1: Vec3, dir2: Vec3, power: f32) -> Rectangle {
+        Rectangle {
+            color,
+            origin,
+            dir1,
+            dir2,
+            power,
+            color_power: color * power,
+        }
+    }
 }
 
 impl Light for Rectangle {
@@ -25,6 +39,6 @@ impl Light for Rectangle {
     }
 
     fn get_color(&self, direction: &Vec3) -> Color {
-        self.color * self.power / (0.7 * direction.length() + 1.5 * direction.squared_length())
+        self.color_power / (0.7 * direction.length() + 1.5 * direction.squared_length())
     }
 }

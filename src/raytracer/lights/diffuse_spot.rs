@@ -9,6 +9,9 @@ pub struct DiffuseSpot {
     pub angle: f32,
     pub max_angle: f32,
     pub power: f32,
+    pub temp_1: f32,
+    pub temp_2: Color,
+    pub temp_21: Color,
 }
 
 impl DiffuseSpot {
@@ -21,7 +24,10 @@ impl DiffuseSpot {
             direction: direction.normalized(),
             angle: angle.to_radians(),
             max_angle: max_angle.to_radians(),
-            power: power,
+            power,
+            temp_1: max_angle.to_radians() - angle.to_radians(),
+            temp_2: color * power,
+            temp_21: 1.0 / (max_angle.to_radians() - angle.to_radians()) * color * power,
         }
     }
 }
@@ -36,9 +42,9 @@ impl Light for DiffuseSpot {
             .abs();
 
         if angle < self.angle {
-            self.color * self.power / (0.7 * direction.length() + 1.5 * direction.squared_length())
+            self.temp_2 / (0.7 * direction.length() + 1.5 * direction.squared_length())
         } else if angle < self.max_angle {
-            (self.max_angle - angle) / (self.max_angle - self.angle) * self.color * self.power
+            (self.max_angle - angle) * self.temp_21
                 / (0.7 * direction.length() + 1.5 * direction.squared_length())
         } else {
             BLACK
