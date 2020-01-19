@@ -7,7 +7,7 @@ use crate::raytracer::materials::Material;
 use crate::raytracer::primitive::Primitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::textures::Texture;
-use crate::raytracer::utils::Vec3;
+use crate::raytracer::utils::ZERO_VEC3;
 
 pub struct Scene {
     pub(crate) primitives: Vec<Primitive>,
@@ -37,7 +37,7 @@ impl Scene {
         self.primitives.push(primitive);
     }
 
-    pub fn background_color(&self, rayon: &Ray) -> Color {
+    pub fn background_color(&self, _rayon: &Ray) -> Color {
         Color {
             r: 0.0,
             g: 0.0,
@@ -60,10 +60,10 @@ impl Scene {
         let mut closest_primitive: Option<&Primitive> = None;
         let mut closest_hitinfo: HitInfo = HitInfo {
             distance: std::f32::INFINITY,
-            normal: Vec3::zero(),
-            point: Vec3::zero(),
+            normal: ZERO_VEC3,
+            point: ZERO_VEC3,
             rayon: *rayon,
-            position: Vec3::zero(),
+            position: ZERO_VEC3,
         };
 
         // Search visible object

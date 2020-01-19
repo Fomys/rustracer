@@ -16,6 +16,7 @@ pub struct Image {
 }
 
 impl Image {
+    #[allow(dead_code)]
     pub fn new(image: Arc<dyn TextureMap>, a: Vec2<f32>, b: Vec2<f32>, c: Vec2<f32>) -> Image {
         Image {
             image,

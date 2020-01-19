@@ -32,10 +32,6 @@ impl Tile {
         }
     }
 
-    pub fn set_color(&mut self, index: usize, color: Color) {
-        self.buffer[index] = color;
-    }
-
     fn preprocess(&mut self, camera: &Camera) {
         for j in 0..self.size.y {
             for i in 0..self.size.x {
@@ -81,10 +77,8 @@ impl Camera {
     pub fn new(
         position: Vec3, direction: Vec3, fov: Vec2<f32>, up: Vec3, size: Vec2<usize>,
     ) -> Camera {
-        let vertical_vector =
-            (up - direction.normalized() * Vec3::dot(&direction, &up)).normalized() * fov.y;
-        let horizontal_vector =
-            Vec3::cross_product(&vertical_vector, &direction).normalized() * fov.x;
+        let vertical_vector = fov.y * (up - (direction | up) * direction.normalized()).normalized();
+        let horizontal_vector = fov.x * (vertical_vector ^ direction).normalized();
         let lower_left_corner =
             position + direction - 0.5 * horizontal_vector - 0.5 * vertical_vector;
 
@@ -107,15 +101,14 @@ impl Camera {
         Ray {
             origin: self.position,
             direction: (self.lower_left_corner
-                + self.horizontal_vector * position.x / self.size.x as f32
-                + self.vertical_vector * position.y / self.size.y as f32)
+                + (position.x / self.size.x as f32) * self.horizontal_vector
+                + (position.y / self.size.y as f32) * self.vertical_vector)
                 - self.position,
         }
     }
 
     // NEXT: Remplacer Color par un spectre
     pub fn merge_tile(&mut self, tile: &Tile) {
-        let mut index = 0;
         let mut x = 0;
         let mut y = 0;
         let start = tile.upper_left_corner.x + tile.upper_left_corner.y * self.size.x;
@@ -128,11 +121,6 @@ impl Camera {
             }
         }
     }
-
-    pub fn reset_tiles(&mut self) {
-        self.current_tile = 0;
-    }
-
     pub fn next_tile(&mut self) -> Option<Tile> {
         // Check if all tiles has been passed
         if self.current_tile > self.tile_count.x * self.tile_count.y - 1 {

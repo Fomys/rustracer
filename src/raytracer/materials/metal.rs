@@ -19,15 +19,16 @@ impl MaterialPrimitive for Metal {
     ) -> Color {
         if max_iter > 0 {
             let mut new_color = BLACK;
-            for i in 0..RAY_PER_REFLECT {
-                for j in 0..RAY_PER_REFLECT {
-                    let new_direction = hitinfo.rayon.reflect(&hitinfo.normal).normalized()
-                        + self.fuzziness
-                            * Vec3 {
-                                x: rng.next_f32() * 2.0 - 1.0,
-                                y: rng.next_f32() * 2.0 - 1.0,
-                                z: rng.next_f32() * 2.0 - 1.0,
-                            };
+            for _ in 0..RAY_PER_REFLECT {
+                for _ in 0..RAY_PER_REFLECT {
+                    let new_direction =
+                        hitinfo.rayon.direction.reflect(hitinfo.normal).normalized()
+                            + self.fuzziness
+                                * Vec3 {
+                                    x: rng.next_f32() * 2.0 - 1.0,
+                                    y: rng.next_f32() * 2.0 - 1.0,
+                                    z: rng.next_f32() * 2.0 - 1.0,
+                                };
                     new_color += scene.trace(
                         &Ray {
                             origin: hitinfo.point + 0.1 * new_direction,

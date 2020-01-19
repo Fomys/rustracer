@@ -1,5 +1,5 @@
 mod consts;
-mod vec;
+mod vectors;
 
 pub use consts::*;
-pub use vec::*;
+pub use vectors::*;

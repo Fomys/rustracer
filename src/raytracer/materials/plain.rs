@@ -9,7 +9,7 @@ pub struct Plain {}
 
 impl MaterialPrimitive for Plain {
     fn get_color(
-        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut XorShiftRng,
+        &self, _hitinfo: &HitInfo, _scene: &Scene, _max_iter: usize, _rng: &mut XorShiftRng,
     ) -> Color {
         WHITE
     }

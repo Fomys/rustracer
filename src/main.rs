@@ -1,3 +1,5 @@
+#![allow(clippy::eq_op)]
+#![allow(clippy::redundant_clone)]
 use std::sync::Arc;
 
 use crate::raytracer::camera::Camera;
@@ -47,7 +49,23 @@ fn main() {
         Vec3 {
             x: 3.0,
             y: 4.0,
-            z: 10.0,
+            z: 4.0,
+        },
+        1.0,
+    );
+    let sphere_5 = Sphere::new(
+        Vec3 {
+            x: -5.0,
+            y: 4.0,
+            z: 9.0,
+        },
+        1.0,
+    );
+    let sphere_6 = Sphere::new(
+        Vec3 {
+            x: 5.0,
+            y: 4.0,
+            z: 7.0,
         },
         1.0,
     );
@@ -55,7 +73,7 @@ fn main() {
         Vec3 {
             x: 0.0,
             y: 4.0,
-            z: 16.0,
+            z: 7.0,
         },
         2.0,
     );
@@ -65,7 +83,7 @@ fn main() {
             y: 4.0,
             z: 10.5,
         },
-        0.2,
+        1.2,
     );
 
     let circle_1 = Circle::new(
@@ -139,9 +157,9 @@ fn main() {
     });
     let plain_squares = Arc::new(textures::Squares {});
     let texture_perlin = Arc::new(textures::Perlin::new(Color {
-        r: 0.2,
-        g: 0.8,
-        b: 0.5,
+        r: 1.0,
+        g: 1.0,
+        b: 1.0,
     }));
     let light_square = Arc::new(Rectangle::new(
         WHITE,
@@ -172,7 +190,7 @@ fn main() {
         Vec3 {
             x: 0.0,
             y: -10.0,
-            z: 15.0,
+            z: 1.0,
         },
         100.0,
     ));
@@ -212,12 +230,31 @@ fn main() {
 
     scene.add_primitive(
         Arc::new(sphere),
-        Arc::new(Material::new(vec![(1.0, transparent.clone())])),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
         texture_perlin.clone(),
     );
 
     scene.add_primitive(
         Arc::new(sphere_2),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
+        texture_perlin.clone(),
+    );
+    scene.add_primitive(
+        Arc::new(sphere_5),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
+        texture_perlin.clone(),
+    );
+    scene.add_primitive(
+        Arc::new(sphere_6),
         Arc::new(Material::new(vec![
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
@@ -235,36 +272,39 @@ fn main() {
 
     scene.add_primitive(
         Arc::new(sphere_3),
-        Arc::new(Material::new(vec![(1.0, transparent.clone())])),
+        Arc::new(Material::new(vec![
+            (0.5, diffuse.clone()),
+            (1.0, metal.clone()),
+        ])),
         texture_perlin.clone(),
     );
 
-    scene.add_primitive(
+    /*scene.add_primitive(
         Arc::new(plan_1),
         Arc::new(Material::new(vec![
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
         ])),
-        plain_squares.clone(),
-    );
+        texture_perlin.clone(),
+    );*/
 
-    scene.add_primitive(
+    /*scene.add_primitive(
         Arc::new(circle_1),
         Arc::new(Material::new(vec![
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
         ])),
         texture_perlin.clone(),
-    );
+    );*/
 
-    scene.add_primitive(
+    /*scene.add_primitive(
         Arc::new(cyl_1),
         Arc::new(Material::new(vec![
             (0.5, diffuse.clone()),
             (1.0, metal.clone()),
         ])),
         texture_perlin.clone(),
-    );
+    );*/
 
     scene.add_light(light_omnidirectional);
     scene.add_light(light_spot);

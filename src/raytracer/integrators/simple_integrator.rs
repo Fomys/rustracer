@@ -10,6 +10,7 @@ pub struct SimpleIntegrator {
 }
 
 impl SimpleIntegrator {
+    #[allow(dead_code)]
     pub fn new(camera: Camera, scene: Scene) -> SimpleIntegrator {
         SimpleIntegrator { camera, scene }
     }
@@ -20,9 +21,7 @@ impl Integrator for SimpleIntegrator {
 
     fn render(&mut self) {
         let mut rng = rand::XorShiftRng::new_unseeded();
-        let mut total_pixel = 0;
         while let Some(mut tile) = self.camera.next_tile() {
-            total_pixel += tile.rays.len();
             for pixel_index in 0..tile.rays.len() {
                 let mut new_color = BLACK;
                 for ray_index in 0..tile.rays[pixel_index].len() {

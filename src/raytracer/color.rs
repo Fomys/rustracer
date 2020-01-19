@@ -10,22 +10,12 @@ pub const WHITE: Color = Color {
     g: 1.0,
     b: 1.0,
 };
-pub const RED: Color = Color {
-    r: 1.0,
-    g: 0.0,
-    b: 0.0,
-};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
     pub b: f32,
-}
-
-pub struct ColorInfo {
-    pub color: Color,
-    pub ratio: f32,
 }
 
 impl Color {

@@ -64,7 +64,7 @@ impl Integrator for ParallelIntegrator {
                     tile.buffer[pixel_index] = new_color / tile.rays[pixel_index].len() as f32;
                 }
                 tile.free_mem();
-                tx_thread.send(tile);
+                tx_thread.send(tile).unwrap();
             });
         }
         while pool.active_count() > 0 {

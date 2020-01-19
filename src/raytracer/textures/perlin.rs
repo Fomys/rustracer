@@ -3,7 +3,6 @@ use perlin_noise::PerlinNoise;
 use crate::raytracer::color::Color;
 use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::textures::Texture;
-use crate::raytracer::utils::Vec3;
 
 pub struct PerlinTexture {
     color: Color,

@@ -1,6 +1,6 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::{Vec3, ZERO};
+use crate::raytracer::utils::{Vec3, ZERO, ZERO_VEC3};
 
 pub struct Circle {
     center: Vec3,
@@ -23,9 +23,9 @@ impl Circle {
 
 impl Hittable for Circle {
     fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
-        let denom = Vec3::dot(&self.normal, &rayon.direction);
+        let denom = self.normal | rayon.direction;
         if denom.abs() >= ZERO {
-            let t = Vec3::dot(&(self.center - rayon.origin), &self.normal) / denom;
+            let t = ((self.center - rayon.origin) | self.normal) / denom;
             if t >= 0.0 {
                 let intersect_point = rayon.point_at(t);
                 if (self.center - intersect_point).squared_length() < self.radius_2 {
@@ -34,7 +34,7 @@ impl Hittable for Circle {
                         normal: self.normal,
                         point: intersect_point,
                         rayon: *rayon,
-                        position: Vec3::zero(),
+                        position: ZERO_VEC3,
                     });
                 }
             }

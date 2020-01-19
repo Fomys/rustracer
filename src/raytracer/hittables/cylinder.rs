@@ -1,6 +1,6 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::Vec3;
+use crate::raytracer::utils::{Vec3, ZERO_VEC3};
 
 pub struct Cylinder {
     origin: Vec3,
@@ -67,9 +67,9 @@ impl Hittable for Cylinder {
                     distance,
                     point,
                     normal: (point - self.origin)
-                        - self.direction * (Vec3::dot(&self.direction, &(point - self.origin))),
+                        - (self.direction | (point - self.origin)) * self.direction,
                     rayon: *rayon,
-                    position: Vec3::zero(),
+                    position: ZERO_VEC3,
                 });
             }
             let distance = (-b + sqrt_delta) / a_2; // a_2 = 2 * a
@@ -79,9 +79,9 @@ impl Hittable for Cylinder {
                     distance,
                     point,
                     normal: (point - self.origin)
-                        - self.direction * (Vec3::dot(&self.direction, &(point - self.origin))),
+                        - (self.direction | (point - self.origin)) * self.direction,
                     rayon: *rayon,
-                    position: Vec3::zero(),
+                    position: ZERO_VEC3,
                 });
             }
         }

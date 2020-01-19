@@ -33,11 +33,11 @@ impl DiffuseSpot {
 }
 
 impl Light for DiffuseSpot {
-    fn get_positions(&self, rng: &mut rand::XorShiftRng) -> Vec<Vec3> {
+    fn get_positions(&self, _rng: &mut rand::XorShiftRng) -> Vec<Vec3> {
         vec![self.position]
     }
-    fn get_color(&self, direction: &Vec3) -> Color {
-        let angle = (Vec3::dot(&self.direction, &direction) / direction.length())
+    fn get_color(&self, direction: Vec3) -> Color {
+        let angle = ((self.direction | direction) / direction.length())
             .acos()
             .abs();
 

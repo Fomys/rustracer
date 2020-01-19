@@ -1,10 +1,4 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
-
-#[derive(Debug, Clone, Copy)]
-pub struct Vec2<T> {
-    pub x: T,
-    pub y: T,
-}
+use std::ops::{Add, BitOr, BitXor, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -13,28 +7,26 @@ pub struct Vec3 {
     pub z: f32,
 }
 
+pub const ZERO_VEC3: Vec3 = Vec3 {
+    x: 0.0,
+    y: 0.0,
+    z: 0.0,
+};
+
 impl Vec3 {
-    pub fn min(a: Vec3, b: Vec3) -> Vec3 {
+    pub fn min(self, a: Vec3) -> Vec3 {
         Vec3 {
-            x: a.x.min(a.y),
-            y: a.y.min(b.y),
-            z: a.z.min(b.z),
+            x: self.x.min(a.x),
+            y: self.y.min(a.y),
+            z: self.z.min(a.z),
         }
     }
 
-    pub fn max(a: Vec3, b: Vec3) -> Vec3 {
+    pub fn max(self, a: Vec3) -> Vec3 {
         Vec3 {
-            x: a.x.max(a.y),
-            y: a.y.max(b.y),
-            z: a.z.max(b.z),
-        }
-    }
-
-    pub fn zero() -> Vec3 {
-        Vec3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
+            x: self.x.max(a.x),
+            y: self.y.max(a.y),
+            z: self.z.max(a.z),
         }
     }
 
@@ -62,117 +54,8 @@ impl Vec3 {
         }
     }
 
-    pub fn dot(left: &Vec3, right: &Vec3) -> f32 {
-        left.x * right.x + left.y * right.y + left.z * right.z
-    }
-
-    pub fn cross_product(left: &Vec3, right: &Vec3) -> Vec3 {
-        Vec3 {
-            x: left.y * right.z - left.z * right.y,
-            y: left.z * right.x - left.x * right.z,
-            z: left.x * right.y - left.y * right.x,
-        }
-    }
-}
-
-impl<T: Add<Output=T>> Add for Vec2<T>
-    where
-        T: Add<T, Output=T>,
-{
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self::Output {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl<T: Sub<Output=T>> Sub for Vec2<T>
-    where
-        T: Sub<T, Output=T>,
-{
-    type Output = Self;
-
-    fn sub(self, other: Self) -> Self::Output {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
-    }
-}
-
-impl Mul<Vec2<f32>> for f32 {
-    type Output = Vec2<f32>;
-
-    fn mul(self, other: Vec2<f32>) -> Vec2<f32> {
-        Vec2 {
-            x: self * other.x,
-            y: self * other.y,
-        }
-    }
-}
-
-impl Mul<Vec2<usize>> for usize {
-    type Output = Vec2<usize>;
-
-    fn mul(self, other: Vec2<usize>) -> Vec2<usize> {
-        Vec2 {
-            x: self * other.x,
-            y: self * other.y,
-        }
-    }
-}
-
-impl Div<usize> for Vec2<usize> {
-    type Output = Vec2<usize>;
-
-    fn div(self, other: usize) -> Vec2<usize> {
-        Vec2 {
-            x: self.x / other,
-            y: self.y / other,
-        }
-    }
-}
-
-impl Div<Vec2<usize>> for Vec2<usize> {
-    type Output = Vec2<usize>;
-
-    fn div(self, other: Vec2<usize>) -> Vec2<usize> {
-        Vec2 {
-            x: self.x / other.x,
-            y: self.y / other.y,
-        }
-    }
-}
-
-impl From<Vec2<f32>> for Vec2<usize> {
-    fn from(item: Vec2<f32>) -> Self {
-        Vec2 {
-            x: item.x as usize,
-            y: item.y as usize,
-        }
-    }
-}
-
-impl From<Vec2<usize>> for Vec2<f32> {
-    fn from(item: Vec2<usize>) -> Self {
-        Vec2 {
-            x: item.x as f32,
-            y: item.y as f32,
-        }
-    }
-}
-
-impl Mul<Vec2<usize>> for f32 {
-    type Output = Vec2<f32>;
-
-    fn mul(self, other: Vec2<usize>) -> Vec2<f32> {
-        Vec2 {
-            x: self * other.x as f32,
-            y: self * other.y as f32,
-        }
+    pub fn reflect(self, normal: Vec3) -> Vec3 {
+        -2.0 * (normal | self) * normal + self
     }
 }
 
@@ -188,6 +71,65 @@ impl Add for Vec3 {
     }
 }
 
+impl Sub for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, other: Self) -> Vec3 {
+        Vec3 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
+// Cross product
+impl BitXor for Vec3 {
+    type Output = Vec3;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        Vec3 {
+            x: self.y * rhs.z - self.z * rhs.y,
+            y: self.z * rhs.x - self.x * rhs.z,
+            z: self.x * rhs.y - self.y * rhs.x,
+        }
+    }
+}
+
+// Scalar product
+impl BitOr for Vec3 {
+    type Output = f32;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
+impl Mul<Vec3> for f32 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Vec3 {
+            x: self * rhs.x,
+            y: self * rhs.y,
+            z: self * rhs.z,
+        }
+    }
+}
+
+/*
 impl Add<&Vec3> for Vec3 {
     type Output = Vec3;
 
@@ -200,10 +142,10 @@ impl Add<&Vec3> for Vec3 {
     }
 }
 
-impl Add for &Vec3 {
+impl Add<Vec3> for &Vec3 {
     type Output = Vec3;
 
-    fn add(self, other: Self) -> Vec3 {
+    fn add(self, other: Vec3) -> Vec3 {
         Vec3 {
             x: self.x + other.x,
             y: self.y + other.y,
@@ -260,35 +202,7 @@ impl Sub for &Vec3 {
     }
 }
 
-impl Add<Vec3> for &Vec3 {
-    type Output = Vec3;
 
-    fn add(self, other: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
-    }
-}
-
-impl PartialEq for Vec3 {
-    fn eq(&self, other: &Self) -> bool {
-        return self.x == other.x && self.y == other.y && self.z == other.z;
-    }
-}
-
-impl Mul<f32> for Vec3 {
-    type Output = Vec3;
-
-    fn mul(self, other: f32) -> Vec3 {
-        Vec3 {
-            x: self.x * other,
-            y: self.y * other,
-            z: self.z * other,
-        }
-    }
-}
 
 impl Mul<f32> for &Vec3 {
     type Output = Vec3;
@@ -361,3 +275,30 @@ impl Div<f32> for Vec3 {
         }
     }
 }
+
+impl PartialEq for Vec3 {
+    fn eq(&self, other: &Self) -> bool {
+        return self.x == other.x && self.y == other.y && self.z == other.z;
+    }
+}
+
+impl Into<Float4> for Vec3 {
+    fn into(self) -> Float4 {
+        Float4::new(self.x, self.y, self.z, 0.0)
+    }
+}
+
+impl Into<Float8> for Vec3 {
+    fn into(self) -> Float8 {
+        Float8::new(self.x, self.y, self.z, 0.0, 0.0, 0.0, 0.0, 0.0)
+    }
+}
+
+impl Into<Float16> for Vec3 {
+    fn into(self) -> Float16 {
+        Float16::new(
+            self.x, self.y, self.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        )
+    }
+}
+*/
