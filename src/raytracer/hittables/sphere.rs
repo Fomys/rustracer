@@ -27,7 +27,7 @@ impl Hittable for Sphere {
         let a = rayon.direction | rayon.direction;
         let b = rayon.direction | oc;
         let c = (oc | oc) - self.r_2;
-        let delta = b.powi(2) - a * c;
+        let delta = b * b - a * c;
         if delta >= 0.0 {
             let sqrt_delta = delta.sqrt();
             let distance = (-b - sqrt_delta) / a;
@@ -65,9 +65,10 @@ impl Hittable for Sphere {
                 }
                 MovementPrimitive::Scale(scale) => {
                     self.radius *= scale;
-                    self.r_2 = self.radius.powi(2);
+                    self.r_2 = self.radius * self.radius;
                 }
-                MovementPrimitive::Cycle(_) => { //Nothing here }
+                MovementPrimitive::Cycle(_) => {
+                    //Nothing here
                 }
             }
         }

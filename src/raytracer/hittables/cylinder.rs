@@ -21,7 +21,7 @@ impl Cylinder {
             origin,
             direction,
             _radius: radius,
-            radius_2: radius.powi(2),
+            radius_2: radius * radius,
             zy_yz: origin.z * direction.y - origin.y * direction.z,
             xz_zx: origin.x * direction.z - origin.z * direction.x,
             yx_xy: origin.y * direction.x - origin.x * direction.y,
@@ -29,7 +29,7 @@ impl Cylinder {
         }
     }
     fn update_temp_var(&mut self) {
-        self.radius_2 = self._radius.powi(2);
+        self.radius_2 = self._radius * self._radius;
         self.zy_yz = self.origin.z * self.direction.y - self.origin.y * self.direction.z;
         self.xz_zx = self.origin.x * self.direction.z - self.origin.z * self.direction.x;
         self.yx_xy = self.origin.y * self.direction.x - self.origin.x * self.direction.y;
@@ -51,10 +51,10 @@ impl Hittable for Cylinder {
             + self.xz_zx;
         let t_6 = rayon_norm.origin.x * self.direction.y - rayon_norm.origin.y * self.direction.x
             + self.yx_xy;
-        let a_2 = (t_1.powi(2) + t_2.powi(2) + t_3.powi(2)) * 2.0; // 2*a
+        let a_2 = (t_1 * t_1 + t_2 * t_2 + t_3 * t_3) * 2.0; // 2*a
         let b: f32 = 2.0 * (t_1 * t_4 + t_2 * t_5 + t_3 * t_6);
-        let c = t_4.powi(2) + t_5.powi(2) + t_6.powi(2) - self.radius_2;
-        let delta = b.powi(2) - 2.0 * a_2 * c; // a_2 = 2 * a
+        let c = t_4 * t_4 + t_5 * t_5 + t_6 * t_6 - self.radius_2;
+        let delta = b * b - 2.0 * a_2 * c; // a_2 = 2 * a
         if delta > 0.0 {
             let sqrt_delta = delta.sqrt();
             let distance = (-b - sqrt_delta) / a_2;

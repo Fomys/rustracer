@@ -95,7 +95,7 @@ fn main() {
         Vec2 { x: 800, y: 600 },
         //Vec2 { x: 1920, y: 1080 },
         file.to_string(),
-        5,
+        ray_per_pixels,
     );
     let mut scene = Scene::new();
 
@@ -597,8 +597,8 @@ fn main() {
     scene.add_light(light_spot);
     let mut integrator = ParallelIntegrator::new(camera, scene);
 
-    for i in 0..10 {
-        integrator.render(5);
+    for i in 0..number_of_frames {
+        integrator.render(max_iteration);
         integrator.next_frame();
     }
 }

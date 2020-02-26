@@ -1,4 +1,5 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::movements::movement::MovementPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::{Vec3, ZERO, ZERO_VEC3};
 
@@ -29,6 +30,13 @@ impl Triangle {
             edge1,
             edge2,
         }
+    }
+
+    fn update(&mut self) {
+        self.edge0 = self.b - self.a;
+        self.edge1 = self.c - self.a;
+        self.edge2 = self.c - self.b;
+        self.normal = self.edge0 ^ self.edge1;
     }
 }
 
@@ -69,5 +77,32 @@ impl Hittable for Triangle {
         }
 
         None
+    }
+
+    fn next_pos(&mut self) {
+        let movements = self.movements.next_movements();
+        for movement in movements {
+            match movement {
+                MovementPrimitive::Translation(distance) => {
+                    self.a += distance;
+                    self.b += distance;
+                    self.c += distance;
+                    self.update();
+                }
+                MovementPrimitive::Scale(scale) => {
+                    // 3/2 * 1/2 * (AB + AC) = AG
+                    let center = self.a + 3.0 / 4.0 * (self.edge0 + self.edge1);
+                    let ga = -scale * 3.0 / 2.0 * 0.5 * (self.edge0 + self.edge1);
+                    let gb = -scale * 3.0 / 2.0 * 0.5 * (-self.edge0 + self.edge2);
+                    let gc = scale * 3.0 / 2.0 * 0.5 * (self.edge1 + self.edge2);
+                    self.a = center + ga;
+                    self.b = center + gb;
+                    self.c = center + gc;
+                }
+                MovementPrimitive::Cycle(_) => {
+                    // Nothing here
+                }
+            }
+        }
     }
 }

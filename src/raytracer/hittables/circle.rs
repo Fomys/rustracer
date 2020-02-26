@@ -1,5 +1,5 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
-use crate::raytracer::movements::movement::Movement;
+use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::{Vec3, ZERO, ZERO_VEC3};
 
@@ -18,7 +18,7 @@ impl Circle {
             center,
             _radius: radius,
             normal,
-            radius_2: radius.powi(2),
+            radius_2: radius * radius,
             movement,
         }
     }
@@ -43,5 +43,22 @@ impl Hittable for Circle {
             }
         }
         None
+    }
+
+    fn next_pos(&mut self) {
+        let movements = self.movements.next_movements();
+        for movement in movements {
+            match movement {
+                MovementPrimitive::Translation(distance) => {
+                    self.center += distance;
+                }
+                MovementPrimitive::Scale(scale) => {
+                    self._radius *= scale;
+                    self.radius_2 = self.radius_2 * self.radius_2;
+                }
+                MovementPrimitive::Cycle(_) => { //Nothing here }
+                }
+            }
+        }
     }
 }
