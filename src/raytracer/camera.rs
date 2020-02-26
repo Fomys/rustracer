@@ -4,8 +4,8 @@ use std::path::Path;
 
 use crate::raytracer::color::{Color, BLACK};
 use crate::raytracer::ray::Ray;
+use crate::raytracer::utils::TILE_SIZE;
 use crate::raytracer::utils::{Vec2, Vec3};
-use crate::raytracer::utils::{RAY_PER_PIXELS, TILE_SIZE};
 
 pub struct Tile {
     // Taille du buffer
@@ -15,7 +15,7 @@ pub struct Tile {
     // Buffer interne du tile
     pub(crate) buffer: Vec<Color>,
     // Liste des rayons pour itérer
-    pub(crate) rays: Vec<Vec<Ray>>,
+    pub(crate) rays: Vec<Ray>,
 }
 
 impl Tile {
@@ -35,26 +35,28 @@ impl Tile {
     fn preprocess(&mut self, camera: &Camera) {
         for j in 0..self.size.y {
             for i in 0..self.size.x {
-                let mut temp_rays: Vec<Ray> = vec![];
-                for sub_i in 0..RAY_PER_PIXELS {
-                    for sub_j in 0..RAY_PER_PIXELS {
-                        temp_rays.push(camera.get_ray(Vec2 {
+                for sub_i in 0..camera.ray_per_pixels {
+                    for sub_j in 0..camera.ray_per_pixels {
+                        self.rays.push(camera.get_ray(Vec2 {
                             x: i as f32
                                 + self.upper_left_corner.x as f32
-                                + sub_i as f32 / RAY_PER_PIXELS as f32,
+                                + sub_i as f32 / camera.ray_per_pixels as f32,
                             y: j as f32
                                 + self.upper_left_corner.y as f32
-                                + sub_j as f32 / RAY_PER_PIXELS as f32,
+                                + sub_j as f32 / camera.ray_per_pixels as f32,
                         }));
                     }
                 }
-                self.rays.push(temp_rays);
             }
         }
     }
 }
 
 pub struct Camera {
+    current_frame: usize,
+    file: String,
+    ray_per_pixels: usize,
+    pub ray_per_pixels_count: usize,
     // Taille du buffer
     pub size: Vec2<usize>,
     // Position de la caméra
@@ -75,7 +77,8 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(
-        position: Vec3, direction: Vec3, fov: Vec2<f32>, up: Vec3, size: Vec2<usize>,
+        position: Vec3, direction: Vec3, fov: Vec2<f32>, up: Vec3, size: Vec2<usize>, file: String,
+        ray_per_pixels: usize,
     ) -> Camera {
         let vertical_vector = fov.y * (up - (direction | up) * direction.normalized()).normalized();
         let horizontal_vector = fov.x * (vertical_vector ^ direction).normalized();
@@ -86,6 +89,7 @@ impl Camera {
         let tile_count = (size / TILE_SIZE) + Vec2 { x: 1, y: 1 };
 
         Camera {
+            current_frame: 0,
             position,
             size,
             buffer: vec![BLACK; size.y * size.x],
@@ -94,6 +98,9 @@ impl Camera {
             vertical_vector,
             current_tile: 0,
             tile_count,
+            file,
+            ray_per_pixels,
+            ray_per_pixels_count: ray_per_pixels * ray_per_pixels,
         }
     }
 
@@ -149,8 +156,15 @@ impl Camera {
         Some(new_tile)
     }
 
+    pub fn next_frame(&mut self) {
+        self.current_frame += 1;
+        self.current_tile = 0;
+    }
+
     pub fn save(&self) {
-        let path = Path::new("save.png");
+        let mut str_file = self.current_frame.to_string();
+        str_file.push_str(self.file.as_str());
+        let path = Path::new(str_file.as_str());
         let file = File::create(path).unwrap();
         let w = &mut BufWriter::new(file);
         let mut encoder = png::Encoder::new(w, self.size.x as u32, self.size.y as u32); // Width is 2 pixels and height is 1.

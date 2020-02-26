@@ -94,4 +94,11 @@ impl Scene {
         // Get texture color
         self.background_color(rayon)
     }
+
+    pub fn next_pos(&mut self) {
+        for primitive in self.primitives.iter_mut() {
+            let mut hittable = Arc::get_mut(&mut primitive.hittable).unwrap();
+            hittable.next_pos();
+        }
+    }
 }

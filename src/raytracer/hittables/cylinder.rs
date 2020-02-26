@@ -1,41 +1,38 @@
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::{Vec3, ZERO_VEC3};
 
 pub struct Cylinder {
     origin: Vec3,
     direction: Vec3,
-    radius: f32,
+    _radius: f32,
     radius_2: f32,
     zy_yz: f32,
     xz_zx: f32,
     yx_xy: f32,
-    mincoord: Vec3,
-    maxcoord: Vec3,
+    movements: Movement,
 }
 
 impl Cylinder {
-    pub fn new(origin: Vec3, direction: Vec3, rayon: f32) -> Cylinder {
+    pub fn new(origin: Vec3, direction: Vec3, radius: f32, movements: Movement) -> Cylinder {
         let direction = direction.normalized();
         Cylinder {
             origin,
             direction,
-            radius: rayon,
-            radius_2: rayon.powi(2),
+            _radius: radius,
+            radius_2: radius.powi(2),
             zy_yz: origin.z * direction.y - origin.y * direction.z,
             xz_zx: origin.x * direction.z - origin.z * direction.x,
             yx_xy: origin.y * direction.x - origin.x * direction.y,
-            mincoord: Vec3 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
-            maxcoord: Vec3 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            },
+            movements,
         }
+    }
+    fn update_temp_var(&mut self) {
+        self.radius_2 = self._radius.powi(2);
+        self.zy_yz = self.origin.z * self.direction.y - self.origin.y * self.direction.z;
+        self.xz_zx = self.origin.x * self.direction.z - self.origin.z * self.direction.x;
+        self.yx_xy = self.origin.y * self.direction.x - self.origin.x * self.direction.y;
     }
 }
 
@@ -55,7 +52,7 @@ impl Hittable for Cylinder {
         let t_6 = rayon_norm.origin.x * self.direction.y - rayon_norm.origin.y * self.direction.x
             + self.yx_xy;
         let a_2 = (t_1.powi(2) + t_2.powi(2) + t_3.powi(2)) * 2.0; // 2*a
-        let b = 2.0 * (t_1 * t_4 + t_2 * t_5 + t_3 * t_6);
+        let b: f32 = 2.0 * (t_1 * t_4 + t_2 * t_5 + t_3 * t_6);
         let c = t_4.powi(2) + t_5.powi(2) + t_6.powi(2) - self.radius_2;
         let delta = b.powi(2) - 2.0 * a_2 * c; // a_2 = 2 * a
         if delta > 0.0 {
@@ -88,21 +85,21 @@ impl Hittable for Cylinder {
         None
     }
 
-    fn get_type(&self) -> Hittables {
-        Hittables::Cylinder
-    }
-
-    fn to_cylinder(&self) -> Option<Cylinder> {
-        Some(Cylinder {
-            origin: self.origin,
-            direction: self.direction,
-            radius: self.radius,
-            radius_2: self.radius_2,
-            zy_yz: self.zy_yz,
-            xz_zx: self.xz_zx,
-            yx_xy: self.yx_xy,
-            mincoord: self.mincoord,
-            maxcoord: self.maxcoord,
-        })
+    fn next_pos(&mut self) {
+        let movements = self.movements.next_movements();
+        for movement in movements {
+            match movement {
+                MovementPrimitive::Translation(distance) => {
+                    self.origin += distance;
+                    self.update_temp_var();
+                }
+                MovementPrimitive::Scale(scale) => {
+                    self._radius *= scale;
+                    self.update_temp_var();
+                }
+                MovementPrimitive::Cycle(_) => { //Nothing here }
+                }
+            }
+        }
     }
 }

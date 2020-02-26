@@ -1,4 +1,5 @@
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::{Vec3, ZERO_VEC3};
 
@@ -6,14 +7,16 @@ pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
     pub r_2: f32,
+    pub movements: Movement,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32) -> Sphere {
+    pub fn new(center: Vec3, radius: f32, movements: Movement) -> Sphere {
         Sphere {
             center,
             radius,
             r_2: radius * radius,
+            movements,
         }
     }
 }
@@ -53,15 +56,20 @@ impl Hittable for Sphere {
         None
     }
 
-    fn get_type(&self) -> Hittables {
-        Hittables::Sphere
-    }
-
-    fn to_sphere(&self) -> Option<Sphere> {
-        Some(Sphere {
-            center: self.center,
-            radius: self.radius,
-            r_2: self.r_2,
-        })
+    fn next_pos(&mut self) {
+        let movements = self.movements.next_movements();
+        for movement in movements {
+            match movement {
+                MovementPrimitive::Translation(distance) => {
+                    self.center += distance;
+                }
+                MovementPrimitive::Scale(scale) => {
+                    self.radius *= scale;
+                    self.r_2 = self.radius.powi(2);
+                }
+                MovementPrimitive::Cycle(_) => { //Nothing here }
+                }
+            }
+        }
     }
 }

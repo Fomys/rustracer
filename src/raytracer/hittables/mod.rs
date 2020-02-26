@@ -7,7 +7,7 @@ mod triangle;
 
 pub use circle::Circle;
 pub use cylinder::Cylinder;
-pub use hittable::{HitInfo, Hittable, Hittables};
+pub use hittable::{HitInfo, Hittable};
 pub use plane::Plane;
 pub use sphere::Sphere;
 pub use triangle::Triangle;

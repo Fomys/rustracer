@@ -1,16 +1,22 @@
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::movements::movement::Movement;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::{Vec3, ZERO, ZERO_VEC3};
 
 pub struct Plane {
     origin: Vec3,
     normal: Vec3,
+    pub movements: Movement,
 }
 
 impl Plane {
     #[allow(dead_code)]
-    pub fn new(origin: Vec3, normal: Vec3) -> Plane {
-        Plane { origin, normal }
+    pub fn new(origin: Vec3, normal: Vec3, movements: Movement) -> Plane {
+        Plane {
+            origin,
+            normal,
+            movements,
+        }
     }
 }
 
@@ -30,16 +36,5 @@ impl Hittable for Plane {
             }
         }
         None
-    }
-
-    fn get_type(&self) -> Hittables {
-        Hittables::Plane
-    }
-
-    fn to_plane(&self) -> Option<Plane> {
-        Some(Plane {
-            origin: self.origin,
-            normal: self.normal,
-        })
     }
 }

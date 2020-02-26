@@ -1,22 +1,25 @@
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
+use crate::raytracer::movements::movement::Movement;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::{Vec3, ZERO, ZERO_VEC3};
 
 pub struct Circle {
     center: Vec3,
-    radius: f32,
+    _radius: f32,
     radius_2: f32,
     // radius^2
     normal: Vec3,
+    movement: Movement,
 }
 
 impl Circle {
-    pub fn new(center: Vec3, radius: f32, normal: Vec3) -> Circle {
+    pub fn new(center: Vec3, radius: f32, normal: Vec3, movement: Movement) -> Circle {
         Circle {
             center,
-            radius,
+            _radius: radius,
             normal,
             radius_2: radius.powi(2),
+            movement,
         }
     }
 }
@@ -40,18 +43,5 @@ impl Hittable for Circle {
             }
         }
         None
-    }
-
-    fn get_type(&self) -> Hittables {
-        Hittables::Circle
-    }
-
-    fn to_circle(&self) -> Option<Circle> {
-        Some(Circle {
-            radius_2: self.radius_2,
-            center: self.center,
-            radius: self.radius,
-            normal: self.normal,
-        })
     }
 }

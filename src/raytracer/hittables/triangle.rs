@@ -1,4 +1,4 @@
-use crate::raytracer::hittables::hittable::{HitInfo, Hittable, Hittables};
+use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::{Vec3, ZERO, ZERO_VEC3};
 
@@ -10,8 +10,6 @@ pub struct Triangle {
     edge0: Vec3,
     edge1: Vec3,
     edge2: Vec3,
-    edge0lenght_square: f32,
-    edge1lenght_square: f32,
 }
 
 impl Triangle {
@@ -30,8 +28,6 @@ impl Triangle {
             edge0,
             edge1,
             edge2,
-            edge0lenght_square: edge0.length().powf(2.0),
-            edge1lenght_square: edge1.length().powf(2.0),
         }
     }
 }
@@ -73,23 +69,5 @@ impl Hittable for Triangle {
         }
 
         None
-    }
-
-    fn get_type(&self) -> Hittables {
-        Hittables::Triangle
-    }
-
-    fn to_triangle(&self) -> Option<Triangle> {
-        Some(Triangle {
-            a: self.a,
-            b: self.b,
-            c: self.c,
-            normal: self.normal,
-            edge0: self.edge0,
-            edge1: self.edge1,
-            edge2: self.edge2,
-            edge0lenght_square: self.edge0lenght_square,
-            edge1lenght_square: self.edge1lenght_square,
-        })
     }
 }

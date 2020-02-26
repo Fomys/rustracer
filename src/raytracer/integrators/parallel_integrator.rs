@@ -6,7 +6,6 @@ use crate::raytracer::camera::Camera;
 use crate::raytracer::color::BLACK;
 use crate::raytracer::integrators::Integrator;
 use crate::raytracer::scene::Scene;
-use crate::raytracer::utils::MAX_ITERATION;
 
 pub struct ParallelIntegrator {
     camera: Camera,
@@ -25,7 +24,12 @@ impl ParallelIntegrator {
 impl Integrator for ParallelIntegrator {
     fn preprocess(&mut self) {}
 
-    fn render(&mut self) {
+    fn next_frame(&mut self) {
+        self.camera.next_frame();
+        Arc::get_mut(&mut self.scene).unwrap().next_pos();
+    }
+
+    fn render(&mut self, max_iteration: usize) {
         let mut merged = 0;
         let (tx, rx) = mpsc::channel();
         let pool: ThreadPool = threadpool::Builder::new()
@@ -33,6 +37,7 @@ impl Integrator for ParallelIntegrator {
             .build();
         let total = self.camera.tile_count.x * self.camera.tile_count.y;
         let mut launched = 0;
+        let ray_per_pixel_count = self.camera.ray_per_pixels_count;
         while let Some(mut tile) = self.camera.next_tile() {
             while pool.queued_count() > 5 {
                 for tile in rx.try_iter() {
@@ -52,16 +57,16 @@ impl Integrator for ParallelIntegrator {
             let scene_thread = self.scene.clone();
             pool.execute(move || {
                 let mut rng = rand::XorShiftRng::new_unseeded();
-                for pixel_index in 0..tile.rays.len() {
+                for pixel_index in 0..tile.size.x * tile.size.y {
                     let mut new_color = BLACK;
-                    for ray_index in 0..tile.rays[pixel_index].len() {
+                    for ray_index in 0..ray_per_pixel_count {
                         new_color += scene_thread.trace(
-                            &tile.rays[pixel_index][ray_index],
-                            MAX_ITERATION,
+                            &tile.rays[pixel_index * ray_per_pixel_count + ray_index],
+                            max_iteration,
                             &mut rng,
                         );
                     }
-                    tile.buffer[pixel_index] = new_color / tile.rays[pixel_index].len() as f32;
+                    tile.buffer[pixel_index] = new_color / ray_per_pixel_count as f32;
                 }
                 tile.free_mem();
                 tx_thread.send(tile).unwrap();
