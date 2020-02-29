@@ -1,5 +1,6 @@
 mod circle;
 mod cylinder;
+pub mod fractals;
 mod hittable;
 mod plane;
 mod sphere;
