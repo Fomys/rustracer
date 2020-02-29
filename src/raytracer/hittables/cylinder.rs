@@ -1,7 +1,7 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::{Vec3, ZERO_VEC3};
+use crate::raytracer::utils::Vec3;
 
 pub struct Cylinder {
     origin: Vec3,
@@ -37,7 +37,7 @@ impl Cylinder {
 }
 
 impl Hittable for Cylinder {
-    fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
+    fn compute_hit(&self, rayon: &Ray) -> HitInfo {
         let rayon_norm = rayon.normalized();
         let t_1 =
             rayon_norm.direction.y * self.direction.z - rayon_norm.direction.z * self.direction.y;
@@ -60,29 +60,29 @@ impl Hittable for Cylinder {
             let distance = (-b - sqrt_delta) / a_2;
             if distance > 0.0 {
                 let point = rayon_norm.point_at(distance);
-                return Some(HitInfo {
+                return HitInfo {
                     distance,
                     point,
                     normal: (point - self.origin)
                         - (self.direction | (point - self.origin)) * self.direction,
                     rayon: *rayon,
-                    position: ZERO_VEC3,
-                });
+                    position: Vec3::ZERO,
+                };
             }
             let distance = (-b + sqrt_delta) / a_2; // a_2 = 2 * a
             if distance > 0.0 {
                 let point = rayon_norm.point_at(distance);
-                return Some(HitInfo {
+                return HitInfo {
                     distance,
                     point,
                     normal: (point - self.origin)
                         - (self.direction | (point - self.origin)) * self.direction,
                     rayon: *rayon,
-                    position: ZERO_VEC3,
-                });
+                    position: Vec3::ZERO,
+                };
             }
         }
-        None
+        HitInfo::NONE
     }
 
     fn next_pos(&mut self) {

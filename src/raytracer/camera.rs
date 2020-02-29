@@ -112,6 +112,7 @@ impl Camera {
                 + (position.y / self.size.y as f32) * self.vertical_vector)
                 - self.position,
         }
+        .normalized()
     }
 
     // NEXT: Remplacer Color par un spectre

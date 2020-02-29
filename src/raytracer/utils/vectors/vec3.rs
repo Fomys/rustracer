@@ -7,28 +7,12 @@ pub struct Vec3 {
     pub z: f32,
 }
 
-pub const ZERO_VEC3: Vec3 = Vec3 {
-    x: 0.0,
-    y: 0.0,
-    z: 0.0,
-};
-
 impl Vec3 {
-    pub fn min(self, a: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x.min(a.x),
-            y: self.y.min(a.y),
-            z: self.z.min(a.z),
-        }
-    }
-
-    pub fn max(self, a: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x.max(a.x),
-            y: self.y.max(a.y),
-            z: self.z.max(a.z),
-        }
-    }
+    pub const ZERO: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     pub fn length(&self) -> f32 {
         self.squared_length().sqrt()
@@ -62,11 +46,23 @@ impl Vec3 {
 impl Add for Vec3 {
     type Output = Vec3;
 
-    fn add(self, other: Self) -> Vec3 {
+    fn add(self, rhs: Self) -> Vec3 {
         Vec3 {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl Add for &Vec3 {
+    type Output = Vec3;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Vec3 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
         }
     }
 }
@@ -80,6 +76,18 @@ impl AddAssign for Vec3 {
 }
 
 impl Sub for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, other: Self) -> Vec3 {
+        Vec3 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
+impl Sub for &Vec3 {
     type Output = Vec3;
 
     fn sub(self, other: Self) -> Vec3 {

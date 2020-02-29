@@ -18,6 +18,11 @@ pub struct Movement {
 }
 
 impl Movement {
+    pub const NONE: Self = Self {
+        frame: 0,
+        movements: Vec::new(),
+    };
+
     pub fn new(movements: Vec<MovementPart>) -> Self {
         Self {
             frame: 0,

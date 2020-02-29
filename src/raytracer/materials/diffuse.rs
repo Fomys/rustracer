@@ -17,17 +17,15 @@ impl MaterialPrimitive for Diffuse {
             for position in light.get_positions(rng).iter() {
                 i += 1;
                 let direction = *position - hitinfo.point;
-                if scene
-                    .launch_ray_min_dist(
-                        &Ray {
-                            origin: hitinfo.point + 0.01 * direction,
-                            direction,
-                        },
-                        direction.length(),
-                    )
-                    .is_none()
+                if scene.launch_ray_min_dist(
+                    &Ray {
+                        origin: hitinfo.point + 0.01 * direction,
+                        direction,
+                    },
+                    direction.length(),
+                ) == HitInfo::NONE
                 {
-                    new_color += light.get_color(direction) * (direction | hitinfo.normal).max(0.0);
+                    new_color += light.get_color(direction) * (direction | hitinfo.normal).abs();
                 }
             }
         }

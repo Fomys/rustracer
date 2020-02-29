@@ -1,7 +1,7 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::{Vec3, ZERO, ZERO_VEC3};
+use crate::raytracer::utils::{Vec3, ZERO};
 
 pub struct Plane {
     origin: Vec3,
@@ -21,21 +21,21 @@ impl Plane {
 }
 
 impl Hittable for Plane {
-    fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
+    fn compute_hit(&self, rayon: &Ray) -> HitInfo {
         let denom = self.normal | rayon.direction;
         if denom.abs() >= ZERO {
             let t = ((self.origin - rayon.origin) | self.normal) / denom;
             if t >= 0.0 {
-                return Some(HitInfo {
+                return HitInfo {
                     distance: t,
                     normal: self.normal,
                     point: rayon.point_at(t),
                     rayon: *rayon,
-                    position: ZERO_VEC3,
-                });
+                    position: Vec3::ZERO,
+                };
             }
         }
-        None
+        HitInfo::NONE
     }
     fn next_pos(&mut self) {
         let movements = self.movements.next_movements();

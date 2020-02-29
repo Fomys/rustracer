@@ -64,16 +64,16 @@ fn main() {
         .unwrap_or(4);
     let ray_per_pixels = matches
         .value_of("ray_per_pixels")
+        .unwrap_or("3")
+        .to_string()
+        .parse::<usize>()
+        .unwrap_or(3);
+    let number_of_frames = matches
+        .value_of("number_of_frames")
         .unwrap_or("1")
         .to_string()
         .parse::<usize>()
         .unwrap_or(1);
-    let number_of_frames = matches
-        .value_of("number_of_frames")
-        .unwrap_or("10")
-        .to_string()
-        .parse::<usize>()
-        .unwrap_or(10);
 
     let camera = Camera::new(
         Vec3 {

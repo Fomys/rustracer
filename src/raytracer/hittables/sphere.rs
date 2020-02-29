@@ -1,7 +1,7 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
-use crate::raytracer::utils::{Vec3, ZERO_VEC3};
+use crate::raytracer::utils::Vec3;
 
 pub struct Sphere {
     pub center: Vec3,
@@ -22,7 +22,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn compute_hit(&self, rayon: &Ray) -> Option<HitInfo> {
+    fn compute_hit(&self, rayon: &Ray) -> HitInfo {
         let oc = rayon.origin - self.center;
         let a = rayon.direction | rayon.direction;
         let b = rayon.direction | oc;
@@ -33,27 +33,27 @@ impl Hittable for Sphere {
             let distance = (-b - sqrt_delta) / a;
             if distance > 0.0 {
                 let point = rayon.point_at(distance);
-                return Some(HitInfo {
+                return HitInfo {
                     distance,
                     point,
                     normal: (point - self.center),
                     rayon: *rayon,
-                    position: ZERO_VEC3,
-                });
+                    position: Vec3::ZERO,
+                };
             }
             let distance = (-b + sqrt_delta) / a;
             if distance > 0.0 {
                 let point = rayon.point_at(distance);
-                return Some(HitInfo {
+                return HitInfo {
                     distance,
                     point,
                     normal: (point - self.center),
                     rayon: *rayon,
-                    position: ZERO_VEC3,
-                });
+                    position: Vec3::ZERO,
+                };
             }
         }
-        None
+        HitInfo::NONE
     }
 
     fn next_pos(&mut self) {

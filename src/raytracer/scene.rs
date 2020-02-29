@@ -7,7 +7,6 @@ use crate::raytracer::materials::Material;
 use crate::raytracer::primitive::Primitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::textures::Texture;
-use crate::raytracer::utils::ZERO_VEC3;
 
 pub struct Scene {
     pub(crate) primitives: Vec<Primitive>,
@@ -45,34 +44,26 @@ impl Scene {
         }
     }
 
-    pub fn launch_ray_min_dist(&self, rayon: &Ray, distance: f32) -> Option<HitInfo> {
+    pub fn launch_ray_min_dist(&self, rayon: &Ray, distance: f32) -> HitInfo {
         for primitive in self.primitives.iter() {
-            if let Some(hitinfo) = primitive.hittable.compute_hit(&rayon) {
-                if hitinfo.distance < distance {
-                    return Some(hitinfo);
-                }
+            let hitinfo = primitive.hittable.compute_hit(&rayon);
+            if hitinfo.distance < distance {
+                return hitinfo;
             }
         }
-        None
+        HitInfo::NONE
     }
 
     pub fn launch_ray(&self, rayon: &Ray) -> (HitInfo, Option<&Primitive>) {
         let mut closest_primitive: Option<&Primitive> = None;
-        let mut closest_hitinfo: HitInfo = HitInfo {
-            distance: std::f32::INFINITY,
-            normal: ZERO_VEC3,
-            point: ZERO_VEC3,
-            rayon: *rayon,
-            position: ZERO_VEC3,
-        };
+        let mut closest_hitinfo: HitInfo = HitInfo::NONE;
 
         // Search visible object
         for primitive in self.primitives.iter() {
-            if let Some(hitinfo) = primitive.hittable.compute_hit(&rayon) {
-                if hitinfo.distance < closest_hitinfo.distance {
-                    closest_primitive = Some(primitive);
-                    closest_hitinfo = hitinfo;
-                }
+            let hitinfo = primitive.hittable.compute_hit(&rayon);
+            if hitinfo.distance < closest_hitinfo.distance {
+                closest_primitive = Some(primitive);
+                closest_hitinfo = hitinfo;
             }
         }
 
@@ -97,7 +88,7 @@ impl Scene {
 
     pub fn next_pos(&mut self) {
         for primitive in self.primitives.iter_mut() {
-            let mut hittable = Arc::get_mut(&mut primitive.hittable).unwrap();
+            let hittable = Arc::get_mut(&mut primitive.hittable).unwrap();
             hittable.next_pos();
         }
     }
