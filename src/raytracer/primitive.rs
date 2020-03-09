@@ -4,6 +4,7 @@ use crate::raytracer::hittables::Hittable;
 use crate::raytracer::materials::Material;
 use crate::raytracer::textures::Texture;
 
+#[derive(Clone)]
 pub struct Primitive {
     pub hittable: Arc<dyn Hittable>,
     pub material: Arc<Material>,

@@ -145,6 +145,16 @@ impl Mul<Vec3> for f32 {
     }
 }
 
+impl From<[f32; 3]> for Vec3 {
+    fn from(rhs: [f32; 3]) -> Self {
+        Self {
+            x: rhs[0],
+            y: rhs[1],
+            z: rhs[2],
+        }
+    }
+}
+
 /*
 impl Add<&Vec3> for Vec3 {
     type Output = Vec3;

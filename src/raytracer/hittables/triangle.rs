@@ -107,3 +107,13 @@ impl Hittable for Triangle {
         }
     }
 }
+
+impl From<(f32, f32, f32, f32)> for Vec3 {
+    fn from(pos: (f32, f32, f32, f32)) -> Self {
+        Self {
+            x: pos.0,
+            y: pos.1,
+            z: pos.2,
+        }
+    }
+}

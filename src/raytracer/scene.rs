@@ -21,6 +21,14 @@ impl Scene {
         }
     }
 
+    pub fn add_primitives(&mut self, primitives: Vec<Primitive>) {
+        self.primitives = [&self.primitives[..], &primitives[..]].concat();
+    }
+
+    pub fn add_lights(&mut self, lights: Vec<Arc<dyn Light>>) {
+        self.lights = [&self.lights[..], &lights[..]].concat();
+    }
+
     pub fn add_light(&mut self, light: Arc<dyn Light>) {
         self.lights.push(light);
     }
@@ -79,7 +87,9 @@ impl Scene {
                 .get_color(&closest_hitinfo, self, max_iter, rng);
             // Get Texture color
             let texture_color = object.texture.get_color(&closest_hitinfo);
-            return texture_color * material_color;
+            return texture_color * material_color
+                / (0.05 * closest_hitinfo.distance
+                    + 0.02 * closest_hitinfo.distance * closest_hitinfo.distance);
         }
 
         // Get texture color

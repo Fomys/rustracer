@@ -9,6 +9,7 @@ pub mod utils;
 pub mod hittables;
 pub mod integrators;
 pub mod lights;
+pub mod loaders;
 pub mod materials;
 pub mod movements;
 pub mod texture_maps;

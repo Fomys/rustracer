@@ -29,6 +29,6 @@ impl MaterialPrimitive for Diffuse {
                 }
             }
         }
-        new_color / i as f32
+        new_color / i.max(1) as f32
     }
 }
