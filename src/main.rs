@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use crate::raytracer::camera::Camera;
-use crate::raytracer::color::{Color, WHITE};
+use crate::raytracer::color::Color;
 use crate::raytracer::hittables::{Circle, Cylinder, Plane, Sphere};
 use crate::raytracer::integrators::{Integrator, ParallelIntegrator, SimpleIntegrator};
 use crate::raytracer::lights::{DiffuseSpot, Omnidirectional, Rectangle};
@@ -449,7 +449,7 @@ fn main() {
         b: 1.0,
     }));
     let light_square = Arc::new(Rectangle::new(
-        WHITE,
+        Color::WHITE,
         Vec3 {
             x: 10.0,
             y: -5.0,

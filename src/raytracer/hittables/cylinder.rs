@@ -38,19 +38,14 @@ impl Cylinder {
 
 impl Hittable for Cylinder {
     fn compute_hit(&self, rayon: &Ray) -> HitInfo {
-        let rayon_norm = rayon.normalized();
-        let t_1 =
-            rayon_norm.direction.y * self.direction.z - rayon_norm.direction.z * self.direction.y;
-        let t_2 =
-            rayon_norm.direction.z * self.direction.x - rayon_norm.direction.x * self.direction.z;
-        let t_3 =
-            rayon_norm.direction.x * self.direction.y - rayon_norm.direction.y * self.direction.x;
-        let t_4 = rayon_norm.origin.y * self.direction.z - rayon_norm.origin.z * self.direction.y
-            + self.zy_yz;
-        let t_5 = rayon_norm.origin.z * self.direction.x - rayon_norm.origin.x * self.direction.z
-            + self.xz_zx;
-        let t_6 = rayon_norm.origin.x * self.direction.y - rayon_norm.origin.y * self.direction.x
-            + self.yx_xy;
+        let direction = rayon.direction.normalized();
+        let origin = rayon.origin;
+        let t_1 = direction.y * self.direction.z - direction.z * self.direction.y;
+        let t_2 = direction.z * self.direction.x - direction.x * self.direction.z;
+        let t_3 = direction.x * self.direction.y - direction.y * self.direction.x;
+        let t_4 = origin.y * self.direction.z - origin.z * self.direction.y + self.zy_yz;
+        let t_5 = origin.z * self.direction.x - origin.x * self.direction.z + self.xz_zx;
+        let t_6 = origin.x * self.direction.y - origin.y * self.direction.x + self.yx_xy;
         let a_2 = (t_1 * t_1 + t_2 * t_2 + t_3 * t_3) * 2.0; // 2*a
         let b: f32 = 2.0 * (t_1 * t_4 + t_2 * t_5 + t_3 * t_6);
         let c = t_4 * t_4 + t_5 * t_5 + t_6 * t_6 - self.radius_2;
@@ -59,7 +54,7 @@ impl Hittable for Cylinder {
             let sqrt_delta = delta.sqrt();
             let distance = (-b - sqrt_delta) / a_2;
             if distance > 0.0 {
-                let point = rayon_norm.point_at(distance);
+                let point = origin + distance * direction;
                 return HitInfo {
                     distance,
                     point,
@@ -71,7 +66,7 @@ impl Hittable for Cylinder {
             }
             let distance = (-b + sqrt_delta) / a_2; // a_2 = 2 * a
             if distance > 0.0 {
-                let point = rayon_norm.point_at(distance);
+                let point = origin + distance * direction;
                 return HitInfo {
                     distance,
                     point,

@@ -1,4 +1,4 @@
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::lights::light::Light;
 use crate::raytracer::utils::Vec3;
 
@@ -27,7 +27,7 @@ impl DiffuseSpot {
             power,
             temp_1: max_angle.to_radians() - angle.to_radians(),
             temp_2: color * power,
-            temp_21: 1.0 / (max_angle.to_radians() - angle.to_radians()) * color * power,
+            temp_21: 1.0 / (max_angle.to_radians() - angle.to_radians()) * power * color,
         }
     }
 }
@@ -47,7 +47,7 @@ impl Light for DiffuseSpot {
             (self.max_angle - angle) * self.temp_21
                 / (0.7 * direction.length() + 1.5 * direction.squared_length())
         } else {
-            BLACK
+            Color::BLACK
         }
     }
 }

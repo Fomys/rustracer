@@ -1,5 +1,5 @@
 use crate::raytracer::camera::Camera;
-use crate::raytracer::color::BLACK;
+use crate::raytracer::color::Color;
 use crate::raytracer::integrators::integrator::Integrator;
 use crate::raytracer::scene::Scene;
 
@@ -31,13 +31,14 @@ impl Integrator for SimpleIntegrator {
                 total
             );
             for pixel_index in 0..tile.size.x * tile.size.y {
-                let mut new_color = BLACK;
+                let mut new_color = Color::BLACK;
                 for ray_index in 0..ray_per_pixel_count {
-                    new_color += self.scene.trace(
-                        &tile.rays[pixel_index * ray_per_pixel_count + ray_index],
-                        max_iteration,
-                        &mut rng,
-                    );
+                    new_color = new_color
+                        + self.scene.trace(
+                            &tile.rays[pixel_index * ray_per_pixel_count + ray_index],
+                            max_iteration,
+                            &mut rng,
+                        );
                 }
                 tile.buffer[pixel_index] = new_color / self.camera.ray_per_pixels_count as f32;
             }

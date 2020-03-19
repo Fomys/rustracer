@@ -1,11 +1,11 @@
 use rand::XorShiftRng;
 
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::materials::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
-use crate::raytracer::utils::{Vec3, OFFSET};
+use crate::raytracer::utils::{Spectrum, Vec3, OFFSET};
 
 pub struct Transparent {
     pub refractive_index_div: f32,
@@ -44,6 +44,6 @@ impl MaterialPrimitive for Transparent {
                 rng,
             );
         }
-        BLACK
+        Color::BLACK
     }
 }

@@ -3,7 +3,7 @@ use std::sync::{mpsc, Arc};
 use threadpool::ThreadPool;
 
 use crate::raytracer::camera::Camera;
-use crate::raytracer::color::BLACK;
+use crate::raytracer::color::Color;
 use crate::raytracer::integrators::Integrator;
 use crate::raytracer::scene::Scene;
 
@@ -58,13 +58,14 @@ impl Integrator for ParallelIntegrator {
             pool.execute(move || {
                 let mut rng = rand::XorShiftRng::new_unseeded();
                 for pixel_index in 0..tile.size.x * tile.size.y {
-                    let mut new_color = BLACK;
+                    let mut new_color = Color::BLACK;
                     for ray_index in 0..ray_per_pixel_count {
-                        new_color += scene_thread.trace(
-                            &tile.rays[pixel_index * ray_per_pixel_count + ray_index],
-                            max_iteration,
-                            &mut rng,
-                        );
+                        new_color = new_color
+                            + scene_thread.trace(
+                                &tile.rays[pixel_index * ray_per_pixel_count + ray_index],
+                                max_iteration,
+                                &mut rng,
+                            );
                     }
                     tile.buffer[pixel_index] = new_color / ray_per_pixel_count as f32;
                 }

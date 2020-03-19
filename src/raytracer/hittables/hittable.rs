@@ -3,7 +3,6 @@ use std::cmp::Ordering;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::Vec3;
 
-#[derive(Debug)]
 pub struct HitInfo {
     pub distance: f32,
     pub normal: Vec3,
