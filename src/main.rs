@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use crate::raytracer::camera::Camera;
 use crate::raytracer::color::{Color, WHITE};
-use crate::raytracer::hittables::{Circle, Cylinder, Plane, Sphere};
+use crate::raytracer::hittables::{Circle, Cylinder, Plane, Sphere, Square};
 use crate::raytracer::integrators::{Integrator, ParallelIntegrator, SimpleIntegrator};
 use crate::raytracer::lights::{DiffuseSpot, Omnidirectional, Rectangle};
 use crate::raytracer::materials::Material;
@@ -98,6 +98,24 @@ fn main() {
         ray_per_pixels,
     );
     let mut scene = Scene::new();
+
+    let square = Square::new(
+        Vec3 {
+            x: 3.0,
+            y: 1.0,
+            z: 7.0,
+        },
+        Vec3 {
+            x: 2.0,
+            y: 0.0,
+            z: -0.5,
+        },
+        Vec3 {
+            x: 0.0,
+            y: 2.0,
+            z: 0.0,
+        },
+    );
 
     let sphere = Sphere::new(
         Vec3 {
@@ -591,6 +609,14 @@ fn main() {
             (0.2, metal.clone()),
         ])),
         plain_color.clone(),
+    );
+    scene.add_primitive(
+        Arc::new(square),
+        Arc::new(Material::new(vec![
+            (0.2, diffuse.clone()),
+            (0.8, metal.clone()),
+        ])),
+        plain_color_2.clone(),
     );
 
     scene.add_light(light_omnidirectional);
