@@ -20,8 +20,8 @@ use std::path::Path;
 pub struct ObjLoader {}
 
 impl Loader for ObjLoader {
-    fn load(input: &Path) -> Result<(Vec<Primitive>, Vec<Arc<dyn Light>>), std::io::Error> {
-        let mut primitives: Vec<Primitive> = vec![];
+    fn load(input: &Path) -> Result<(Vec<Arc<Primitive>>, Vec<Arc<dyn Light>>), std::io::Error> {
+        let mut primitives: Vec<Arc<Primitive>> = vec![];
         let mut lights: Vec<Arc<dyn Light>> = vec![];
         let a = BufReader::new(File::open(input).unwrap());
         let mut object = raw::parse_obj(a).unwrap();
@@ -72,58 +72,58 @@ impl Loader for ObjLoader {
             match poly {
                 Polygon::P(positions) => {
                     if positions.len() == 3 {
-                        primitives.push(Primitive {
+                        primitives.push(Arc::new(Primitive {
                             hittable: Arc::new(hittables::Triangle::new(
                                 Vec3::from(object.positions[positions[0]]),
                                 Vec3::from(object.positions[positions[1]]),
                                 Vec3::from(object.positions[positions[2]]),
                                 Movement::NONE,
+                                colors[i % colors.len()].clone(),
                             )),
                             material: Arc::new(Material::new(vec![(1.0, diffuse.clone())])),
-                            texture: colors[i % colors.len()].clone(),
-                        });
+                        }));
                     }
                 }
                 Polygon::PT(positions) => {
                     if positions.len() == 3 {
-                        primitives.push(Primitive {
+                        primitives.push(Arc::new(Primitive {
                             hittable: Arc::new(hittables::Triangle::new(
                                 Vec3::from(object.positions[positions[0].0]),
                                 Vec3::from(object.positions[positions[1].0]),
                                 Vec3::from(object.positions[positions[2].0]),
                                 Movement::NONE,
+                                colors[i % colors.len()].clone(),
                             )),
                             material: Arc::new(Material::new(vec![(1.0, diffuse.clone())])),
-                            texture: colors[i % colors.len()].clone(),
-                        });
+                        }));
                     }
                 }
                 Polygon::PN(positions) => {
                     if positions.len() == 3 {
-                        primitives.push(Primitive {
+                        primitives.push(Arc::new(Primitive {
                             hittable: Arc::new(hittables::Triangle::new(
                                 Vec3::from(object.positions[positions[0].0]),
                                 Vec3::from(object.positions[positions[1].0]),
                                 Vec3::from(object.positions[positions[2].0]),
                                 Movement::NONE,
+                                colors[i % colors.len()].clone(),
                             )),
                             material: Arc::new(Material::new(vec![(1.0, diffuse.clone())])),
-                            texture: colors[i % colors.len()].clone(),
-                        });
+                        }));
                     }
                 }
                 Polygon::PTN(positions) => {
                     if positions.len() == 3 {
-                        primitives.push(Primitive {
+                        primitives.push(Arc::new(Primitive {
                             hittable: Arc::new(hittables::Triangle::new(
                                 Vec3::from(object.positions[positions[0].0]),
                                 Vec3::from(object.positions[positions[1].0]),
                                 Vec3::from(object.positions[positions[2].0]),
                                 Movement::NONE,
+                                colors[i % colors.len()].clone(),
                             )),
                             material: Arc::new(Material::new(vec![(1.0, diffuse.clone())])),
-                            texture: colors[i % colors.len()].clone(),
-                        });
+                        }));
                     }
                 }
             }

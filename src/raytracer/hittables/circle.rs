@@ -1,7 +1,9 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
+use crate::raytracer::textures::Texture;
 use crate::raytracer::utils::{Vec3, ZERO};
+use std::sync::Arc;
 
 pub struct Circle {
     center: Vec3,
@@ -10,16 +12,20 @@ pub struct Circle {
     // radius^2
     normal: Vec3,
     movement: Movement,
+    texture: Arc<dyn Texture>,
 }
 
 impl Circle {
-    pub fn new(center: Vec3, radius: f32, normal: Vec3, movement: Movement) -> Circle {
+    pub fn new(
+        center: Vec3, radius: f32, normal: Vec3, movement: Movement, texture: Arc<dyn Texture>,
+    ) -> Circle {
         Circle {
             center,
             _radius: radius,
             normal,
             radius_2: radius * radius,
             movement,
+            texture,
         }
     }
 }
@@ -37,7 +43,12 @@ impl Hittable for Circle {
                         normal: self.normal,
                         point: intersect_point,
                         rayon: *rayon,
-                        position: Vec3::ZERO,
+                        position: Vec3 {
+                            x: (intersect_point - self.center).length(),
+                            y: 0.0,
+                            z: 0.0,
+                        }, // distance au centre
+                        texture: Some(self.texture.clone()),
                     };
                 }
             }
@@ -60,5 +71,24 @@ impl Hittable for Circle {
                 }
             }
         }
+    }
+
+    fn get_extremums(&self) -> (Vec3, Vec3) {
+        (
+            self.center
+                - self._radius
+                    * Vec3 {
+                        x: 1.0,
+                        y: 1.0,
+                        z: 1.0,
+                    },
+            self.center
+                + self._radius
+                    * Vec3 {
+                        x: 1.0,
+                        y: 1.0,
+                        z: 1.0,
+                    },
+        )
     }
 }

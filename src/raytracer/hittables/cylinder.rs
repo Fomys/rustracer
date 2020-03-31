@@ -1,7 +1,9 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
+use crate::raytracer::textures::Texture;
 use crate::raytracer::utils::Vec3;
+use std::sync::Arc;
 
 pub struct Cylinder {
     origin: Vec3,
@@ -12,10 +14,13 @@ pub struct Cylinder {
     xz_zx: f32,
     yx_xy: f32,
     movements: Movement,
+    texture: Arc<dyn Texture>,
 }
 
 impl Cylinder {
-    pub fn new(origin: Vec3, direction: Vec3, radius: f32, movements: Movement) -> Cylinder {
+    pub fn new(
+        origin: Vec3, direction: Vec3, radius: f32, movements: Movement, texture: Arc<dyn Texture>,
+    ) -> Cylinder {
         let direction = direction.normalized();
         Cylinder {
             origin,
@@ -26,6 +31,7 @@ impl Cylinder {
             xz_zx: origin.x * direction.z - origin.z * direction.x,
             yx_xy: origin.y * direction.x - origin.x * direction.y,
             movements,
+            texture,
         }
     }
     fn update_temp_var(&mut self) {
@@ -66,7 +72,12 @@ impl Hittable for Cylinder {
                     normal: (point - self.origin)
                         - (self.direction | (point - self.origin)) * self.direction,
                     rayon: *rayon,
-                    position: Vec3::ZERO,
+                    position: Vec3 {
+                        x: (point - self.origin) | self.direction,
+                        y: 0.0,
+                        z: 0.0,
+                    }, // hauteur par rapport au centre du cylindre
+                    texture: Some(self.texture.clone()),
                 };
             }
             let distance = (-b + sqrt_delta) / a_2; // a_2 = 2 * a
@@ -78,7 +89,12 @@ impl Hittable for Cylinder {
                     normal: (point - self.origin)
                         - (self.direction | (point - self.origin)) * self.direction,
                     rayon: *rayon,
-                    position: Vec3::ZERO,
+                    position: Vec3 {
+                        x: (point - self.origin) | self.direction,
+                        y: 0.0,
+                        z: 0.0,
+                    },
+                    texture: Some(self.texture.clone()),
                 };
             }
         }
@@ -101,5 +117,9 @@ impl Hittable for Cylinder {
                 }
             }
         }
+    }
+
+    fn get_extremums(&self) -> (Vec3, Vec3) {
+        (Vec3::INFINITY, -Vec3::INFINITY)
     }
 }

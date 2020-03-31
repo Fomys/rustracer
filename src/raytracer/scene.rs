@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::raytracer::bvh::{Empty, BVH};
 use crate::raytracer::color::Color;
 use crate::raytracer::hittables::{HitInfo, Hittable};
 use crate::raytracer::lights::Light;
@@ -10,8 +11,9 @@ use crate::raytracer::textures::Texture;
 use rand::prelude::ThreadRng;
 
 pub struct Scene {
-    pub(crate) primitives: Vec<Primitive>,
-    pub(crate) lights: Vec<Arc<dyn Light>>,
+    pub primitives: Vec<Arc<Primitive>>,
+    pub lights: Vec<Arc<dyn Light>>,
+    pub bvh: Arc<dyn BVH>,
 }
 
 impl Scene {
@@ -19,10 +21,18 @@ impl Scene {
         Scene {
             primitives: vec![],
             lights: vec![],
+            bvh: Arc::new(Empty {}),
         }
     }
 
-    pub fn add_primitives(&mut self, primitives: Vec<Primitive>) {
+    pub fn preprocess(&mut self) {
+        for primitive in &self.primitives {
+            self.bvh = self.bvh.insert_primitive(primitive.clone());
+        }
+        self.bvh.prt(0);
+    }
+
+    pub fn add_primitives(&mut self, primitives: Vec<Arc<Primitive>>) {
         self.primitives = [&self.primitives[..], &primitives[..]].concat();
     }
 
@@ -34,15 +44,9 @@ impl Scene {
         self.lights.push(light);
     }
 
-    pub fn add_primitive(
-        &mut self, hittable: Arc<dyn Hittable>, material: Arc<Material>, texture: Arc<dyn Texture>,
-    ) {
-        let primitive: Primitive = Primitive {
-            hittable,
-            material,
-            texture,
-        };
-        self.primitives.push(primitive);
+    pub fn add_primitive(&mut self, hittable: Arc<dyn Hittable>, material: Arc<Material>) {
+        let primitive: Primitive = Primitive { hittable, material };
+        self.primitives.push(Arc::new(primitive));
     }
 
     pub fn background_color(&self, _rayon: &Ray) -> Color {
@@ -54,28 +58,13 @@ impl Scene {
     }
 
     pub fn launch_ray_min_dist(&self, rayon: &Ray, distance: f32) -> HitInfo {
-        for primitive in self.primitives.iter() {
-            let hitinfo = primitive.hittable.compute_hit(&rayon);
-            if hitinfo.distance < distance {
-                return hitinfo;
-            }
-        }
-        HitInfo::NONE
+        let (closest_hitinfo, _) = self.bvh.compute_hit(rayon);
+        closest_hitinfo
     }
 
-    pub fn launch_ray(&self, rayon: &Ray) -> (HitInfo, Option<&Primitive>) {
-        let mut closest_primitive: Option<&Primitive> = None;
-        let mut closest_hitinfo: HitInfo = HitInfo::NONE;
-
+    pub fn launch_ray(&self, rayon: &Ray) -> (HitInfo, Option<Arc<Primitive>>) {
         // Search visible object
-        for primitive in self.primitives.iter() {
-            let hitinfo = primitive.hittable.compute_hit(&rayon);
-            if hitinfo.distance < closest_hitinfo.distance {
-                closest_primitive = Some(primitive);
-                closest_hitinfo = hitinfo;
-            }
-        }
-
+        let (closest_hitinfo, closest_primitive) = self.bvh.compute_hit(rayon);
         (closest_hitinfo, closest_primitive)
     }
 
@@ -83,12 +72,10 @@ impl Scene {
         let (closest_hitinfo, closest_primitive) = self.launch_ray(rayon);
         if let Some(object) = closest_primitive {
             // Get material color (color due to reflect, refract...)
-            let material_color = object
+            let color = object
                 .material
                 .get_color(&closest_hitinfo, self, max_iter, rng);
-            // Get Texture color
-            let texture_color = object.texture.get_color(&closest_hitinfo);
-            return texture_color * material_color
+            return color
                 / (0.05 * closest_hitinfo.distance
                     + 0.02 * closest_hitinfo.distance * closest_hitinfo.distance);
         }
@@ -99,7 +86,7 @@ impl Scene {
 
     pub fn next_pos(&mut self) {
         for primitive in self.primitives.iter_mut() {
-            let hittable = Arc::get_mut(&mut primitive.hittable).unwrap();
+            let hittable = Arc::get_mut(&mut Arc::get_mut(primitive).unwrap().hittable).unwrap();
             hittable.next_pos();
         }
     }

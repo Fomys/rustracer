@@ -1,7 +1,9 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
+use crate::raytracer::textures::Texture;
 use crate::raytracer::utils::{Vec3, ZERO};
+use std::sync::Arc;
 
 pub struct Triangle {
     pub a: Vec3,
@@ -12,11 +14,14 @@ pub struct Triangle {
     edge1: Vec3,
     edge2: Vec3,
     movements: Movement,
+    texture: Arc<dyn Texture>,
 }
 
 impl Triangle {
     #[allow(dead_code)]
-    pub fn new(a: Vec3, b: Vec3, c: Vec3, movements: Movement) -> Triangle {
+    pub fn new(
+        a: Vec3, b: Vec3, c: Vec3, movements: Movement, texture: Arc<dyn Texture>,
+    ) -> Triangle {
         let edge0 = b - a;
         let edge1 = c - a;
         let edge2 = c - b;
@@ -31,6 +36,7 @@ impl Triangle {
             edge1,
             edge2,
             movements,
+            texture,
         }
     }
 
@@ -72,7 +78,12 @@ impl Hittable for Triangle {
                     normal: self.normal,
                     point: intersection,
                     rayon: *rayon,
-                    position: Vec3::ZERO,
+                    position: Vec3 {
+                        x: vp0 | self.edge0,
+                        y: vp0 | self.edge1,
+                        z: 0.0,
+                    }, // coordonnées en projection sur edge0, edge1
+                    texture: Some(self.texture.clone()),
                 };
             }
         }
@@ -105,6 +116,13 @@ impl Hittable for Triangle {
                 }
             }
         }
+    }
+
+    fn get_extremums(&self) -> (Vec3, Vec3) {
+        (
+            self.a.min(&self.b).min(&self.c),
+            self.a.max(&self.b).max(&self.c),
+        )
     }
 }
 

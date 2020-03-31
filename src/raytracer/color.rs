@@ -53,13 +53,6 @@ impl Color {
         b: 1.0,
     };
 
-    pub fn black() -> Color {
-        Color {
-            r: 0.0,
-            g: 0.0,
-            b: 0.0,
-        }
-    }
     pub fn to_rgb(&self) -> (u8, u8, u8) {
         (
             (self.r * 255.0).min(255.0) as u8,

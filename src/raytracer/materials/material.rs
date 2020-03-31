@@ -30,10 +30,13 @@ impl Material {
     pub fn get_color(
         &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut ThreadRng,
     ) -> Color {
-        let mut new_color = Color::BLACK;
-        for (weight, material) in self.materials.iter() {
-            new_color += material.get_color(hitinfo, scene, max_iter, rng) * *weight;
+        if let Some(texture) = &hitinfo.texture {
+            let mut new_color = Color::BLACK;
+            for (weight, material) in self.materials.iter() {
+                new_color += material.get_color(hitinfo, scene, max_iter, rng) * *weight;
+            }
+            return texture.get_color(hitinfo) * new_color / self.sum_weight;
         }
-        new_color / self.sum_weight
+        Color::BLACK
     }
 }

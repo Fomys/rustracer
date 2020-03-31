@@ -15,5 +15,5 @@ pub trait Loader {
         scene.add_lights(lights);
         Ok(scene)
     }
-    fn load(input: &Path) -> io::Result<(Vec<Primitive>, Vec<Arc<dyn Light>>)>;
+    fn load(input: &Path) -> io::Result<(Vec<Arc<Primitive>>, Vec<Arc<dyn Light>>)>;
 }

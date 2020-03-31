@@ -1,15 +1,17 @@
 use std::cmp::Ordering;
 
 use crate::raytracer::ray::Ray;
+use crate::raytracer::textures::Texture;
 use crate::raytracer::utils::Vec3;
+use std::sync::Arc;
 
-#[derive(Debug)]
 pub struct HitInfo {
     pub distance: f32,
     pub normal: Vec3,
     pub point: Vec3,
     pub rayon: Ray,
     pub position: Vec3,
+    pub texture: Option<Arc<dyn Texture>>,
 }
 
 impl HitInfo {
@@ -19,6 +21,7 @@ impl HitInfo {
         point: Vec3::ZERO,
         rayon: Ray::NONE,
         position: Vec3::ZERO,
+        texture: None,
     };
 }
 
@@ -60,4 +63,5 @@ impl Eq for HitInfo {}
 pub trait Hittable: Sync + Send {
     fn compute_hit(&self, rayon: &Ray) -> HitInfo;
     fn next_pos(&mut self) {}
+    fn get_extremums(&self) -> (Vec3, Vec3);
 }

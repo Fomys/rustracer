@@ -51,23 +51,26 @@ fn main() {
             y: -1.0,
             z: 0.0,
         },
-        //Vec2 { x: 800, y: 600 },
+        //Vec2 { x: 80, y: 60 },
         Vec2 { x: 1920, y: 1080 },
         "out.png".to_string(),
-        5,
+        1,
     );
     let mut scene = ObjLoader::load_as_scene(Path::new("donuts.obj")).unwrap();
 
     scene.add_primitive(
-        Arc::new(Sphere::new(Vec3::ZERO, 0.01, Movement::NONE)),
+        Arc::new(Sphere::new(
+            Vec3::ZERO,
+            0.01,
+            Movement::NONE,
+            Arc::new(textures::Plain { color: Color::RED }),
+        )),
         Arc::new(Material::new(vec![(1.0, Arc::new(Plain {}))])),
-        Arc::new(textures::Plain { color: Color::RED }),
     );
     //let light = Omnidirectional::new(Color::WHITE, center, 10000.0);
 
     //scene.add_light(Arc::new(light));
-
-    println!("{:?}", scene.primitives.len());
+    scene.preprocess();
 
     let mut integrator = ParallelIntegrator::new(camera, scene);
 

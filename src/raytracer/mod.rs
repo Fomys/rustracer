@@ -14,3 +14,4 @@ pub mod materials;
 pub mod movements;
 pub mod texture_maps;
 pub mod textures;
+pub mod bvh;

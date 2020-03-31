@@ -1,21 +1,27 @@
 use crate::raytracer::hittables::hittable::{HitInfo, Hittable};
 use crate::raytracer::movements::movement::{Movement, MovementPrimitive};
 use crate::raytracer::ray::Ray;
+use crate::raytracer::textures::Texture;
 use crate::raytracer::utils::{Vec3, ZERO};
+use std::sync::Arc;
 
 pub struct Plane {
     origin: Vec3,
     normal: Vec3,
     pub movements: Movement,
+    texture: Arc<dyn Texture>,
 }
 
 impl Plane {
     #[allow(dead_code)]
-    pub fn new(origin: Vec3, normal: Vec3, movements: Movement) -> Plane {
+    pub fn new(
+        origin: Vec3, normal: Vec3, movements: Movement, texture: Arc<dyn Texture>,
+    ) -> Plane {
         Plane {
             origin,
             normal,
             movements,
+            texture,
         }
     }
 }
@@ -32,6 +38,7 @@ impl Hittable for Plane {
                     point: rayon.point_at(t),
                     rayon: *rayon,
                     position: Vec3::ZERO,
+                    texture: Some(self.texture.clone()),
                 };
             }
         }
@@ -52,5 +59,9 @@ impl Hittable for Plane {
                 }
             }
         }
+    }
+
+    fn get_extremums(&self) -> (Vec3, Vec3) {
+        (Vec3::INFINITY, Vec3::INFINITY)
     }
 }

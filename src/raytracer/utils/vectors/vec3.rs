@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, BitOr, BitXor, Mul, Neg, Sub};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -12,6 +12,12 @@ impl Vec3 {
         x: 0.0,
         y: 0.0,
         z: 0.0,
+    };
+
+    pub const INFINITY: Self = Self {
+        x: std::f32::INFINITY,
+        y: std::f32::INFINITY,
+        z: std::f32::INFINITY,
     };
 
     pub fn length(&self) -> f32 {
@@ -40,6 +46,22 @@ impl Vec3 {
 
     pub fn reflect(self, normal: Vec3) -> Vec3 {
         -2.0 * (normal | self) * normal + self
+    }
+
+    pub fn max(&self, rhs: &Self) -> Self {
+        Self {
+            x: self.x.max(rhs.x),
+            y: self.y.max(rhs.y),
+            z: self.z.max(rhs.z),
+        }
+    }
+
+    pub fn min(&self, rhs: &Self) -> Self {
+        Self {
+            x: self.x.min(rhs.x),
+            y: self.y.min(rhs.y),
+            z: self.z.min(rhs.z),
+        }
     }
 }
 
