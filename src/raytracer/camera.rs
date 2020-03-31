@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
 
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::utils::TILE_SIZE;
 use crate::raytracer::utils::{Vec2, Vec3};
@@ -27,7 +27,7 @@ impl Tile {
         Tile {
             size,
             upper_left_corner,
-            buffer: vec![BLACK; size.x * size.y],
+            buffer: vec![Color::BLACK; size.x * size.y],
             rays: vec![],
         }
     }
@@ -92,7 +92,7 @@ impl Camera {
             current_frame: 0,
             position,
             size,
-            buffer: vec![BLACK; size.y * size.x],
+            buffer: vec![Color::BLACK; size.y * size.x],
             lower_left_corner,
             horizontal_vector,
             vertical_vector,

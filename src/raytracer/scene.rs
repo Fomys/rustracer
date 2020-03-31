@@ -7,6 +7,7 @@ use crate::raytracer::materials::Material;
 use crate::raytracer::primitive::Primitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::textures::Texture;
+use rand::prelude::ThreadRng;
 
 pub struct Scene {
     pub(crate) primitives: Vec<Primitive>,
@@ -78,7 +79,7 @@ impl Scene {
         (closest_hitinfo, closest_primitive)
     }
 
-    pub fn trace(&self, rayon: &Ray, max_iter: usize, rng: &mut rand::XorShiftRng) -> Color {
+    pub fn trace(&self, rayon: &Ray, max_iter: usize, rng: &mut ThreadRng) -> Color {
         let (closest_hitinfo, closest_primitive) = self.launch_ray(rayon);
         if let Some(object) = closest_primitive {
             // Get material color (color due to reflect, refract...)

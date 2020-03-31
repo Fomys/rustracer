@@ -1,11 +1,10 @@
-use rand::XorShiftRng;
-
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::materials::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
 use crate::raytracer::utils::{Vec3, OFFSET};
+use rand::prelude::ThreadRng;
 
 pub struct Transparent {
     pub refractive_index_div: f32,
@@ -28,7 +27,7 @@ impl Transparent {
 
 impl MaterialPrimitive for Transparent {
     fn get_color(
-        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut XorShiftRng,
+        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut ThreadRng,
     ) -> Color {
         if max_iter > 0
             && self
@@ -44,6 +43,6 @@ impl MaterialPrimitive for Transparent {
                 rng,
             );
         }
-        BLACK
+        Color::BLACK
     }
 }

@@ -1,4 +1,4 @@
-use std::io::BufRead;
+use std::io::{BufRead, BufReader};
 use std::sync::Arc;
 
 use crate::raytracer::color::Color;
@@ -11,7 +11,9 @@ use crate::raytracer::primitive::Primitive;
 use crate::raytracer::textures::Texture;
 use crate::raytracer::utils::Vec3;
 use crate::raytracer::{hittables, materials, textures};
-use obj::{IndexTuple, Obj, SimplePolygon};
+use obj::raw::object::Polygon;
+use obj::{load_obj, raw, Obj};
+use std::fs::File;
 use std::io;
 use std::path::Path;
 
@@ -21,9 +23,9 @@ impl Loader for ObjLoader {
     fn load(input: &Path) -> Result<(Vec<Primitive>, Vec<Arc<dyn Light>>), std::io::Error> {
         let mut primitives: Vec<Primitive> = vec![];
         let mut lights: Vec<Arc<dyn Light>> = vec![];
-        let mut object = Obj::<SimplePolygon>::load(input)?;
-        object.load_mtls()?;
-        let diffuse: Arc<dyn MaterialPrimitive> = Arc::new(materials::Diffuse {});
+        let a = BufReader::new(File::open(input).unwrap());
+        let mut object = raw::parse_obj(a).unwrap();
+        let diffuse: Arc<dyn MaterialPrimitive> = Arc::new(materials::Plain {});
         let colors: Vec<Arc<dyn Texture>> = vec![
             Arc::new(textures::Perlin::new(Color::BLUE)),
             Arc::new(textures::Perlin::new(Color::YELLOW)),
@@ -34,7 +36,7 @@ impl Loader for ObjLoader {
         ];
         let mut i = 0;
 
-        for obj in &object.objects {
+        /*for obj in &object.objects {
             for grp in &obj.groups {
                 let polys: Vec<Primitive> = grp
                     .polys
@@ -42,8 +44,8 @@ impl Loader for ObjLoader {
                     .map(|x| Primitive {
                         hittable: Arc::new(Triangle::new(
                             Vec3::from(object.position[x[0].0]),
-                            Vec3::from(object.position[x[0].0]),
-                            Vec3::from(object.position[x[0].0]),
+                            Vec3::from(object.position[x[1].0]),
+                            Vec3::from(object.position[x[2].0]),
                             Movement::NONE,
                         )),
                         material: Arc::new(Material::new(vec![(1.0, diffuse.clone())])),
@@ -63,8 +65,8 @@ impl Loader for ObjLoader {
                 })
                 .collect();*/
             }
-        }
-        /*
+        }*/
+
         for poly in object.polygons {
             i += 1;
             match poly {
@@ -125,7 +127,7 @@ impl Loader for ObjLoader {
                     }
                 }
             }
-        }*/
+        }
 
         Ok((primitives, lights))
     }

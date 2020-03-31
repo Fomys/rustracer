@@ -8,12 +8,12 @@ edition = "2018"
 
 [dependencies]
 threadpool = "1.7"
-png = "0.15"
-rand = "0.3"
-image = "0.22"
+png = "0.16"
+rand = "0.7"
+image = "0.23"
 perlin_noise = "1.0"
 clap = "2.33"
-obj = "0.9"
+obj-rs = "0.6"
 
 [profile.release]
 debug = true

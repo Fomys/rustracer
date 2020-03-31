@@ -1,4 +1,4 @@
-use crate::raytracer::color::{Color, BLACK, WHITE};
+use crate::raytracer::color::Color;
 use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::textures::texture::Texture;
 
@@ -13,9 +13,9 @@ impl Texture for Squares {
         }) % 2.0)
             > 1.0
         {
-            WHITE
+            Color::WHITE
         } else {
-            BLACK
+            Color::BLACK
         };
         if ((if hitinfo.point.z > 0.0 {
             hitinfo.point.z
@@ -25,10 +25,10 @@ impl Texture for Squares {
             > 1.0
         {
             c1
-        } else if c1 == BLACK {
-            WHITE
+        } else if c1 == Color::BLACK {
+            Color::WHITE
         } else {
-            BLACK
+            Color::BLACK
         }
     }
 }

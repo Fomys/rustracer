@@ -1,6 +1,7 @@
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::lights::light::Light;
 use crate::raytracer::utils::Vec3;
+use rand::prelude::ThreadRng;
 
 pub struct DiffuseSpot {
     pub color: Color,
@@ -33,7 +34,7 @@ impl DiffuseSpot {
 }
 
 impl Light for DiffuseSpot {
-    fn get_positions(&self, _rng: &mut rand::XorShiftRng) -> Vec<Vec3> {
+    fn get_positions(&self, _rng: &mut ThreadRng) -> Vec<Vec3> {
         vec![self.position]
     }
     fn get_color(&self, direction: Vec3) -> Color {
@@ -47,7 +48,7 @@ impl Light for DiffuseSpot {
             (self.max_angle - angle) * self.temp_21
                 / (0.7 * direction.length() + 1.5 * direction.squared_length())
         } else {
-            BLACK
+            Color::BLACK
         }
     }
 }

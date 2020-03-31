@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::scene::Scene;
+use rand::prelude::ThreadRng;
 
 pub trait MaterialPrimitive: Sync + Send {
     fn get_color(
-        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut rand::XorShiftRng,
+        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut ThreadRng,
     ) -> Color;
 }
 
@@ -27,9 +28,9 @@ impl Material {
         }
     }
     pub fn get_color(
-        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut rand::XorShiftRng,
+        &self, hitinfo: &HitInfo, scene: &Scene, max_iter: usize, rng: &mut ThreadRng,
     ) -> Color {
-        let mut new_color = BLACK;
+        let mut new_color = Color::BLACK;
         for (weight, material) in self.materials.iter() {
             new_color += material.get_color(hitinfo, scene, max_iter, rng) * *weight;
         }

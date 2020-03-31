@@ -1,6 +1,7 @@
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::lights::light::Light;
 use crate::raytracer::utils::Vec3;
+use rand::prelude::ThreadRng;
 
 pub struct Spot {
     _color: Color,
@@ -26,7 +27,7 @@ impl Spot {
 }
 
 impl Light for Spot {
-    fn get_positions(&self, _rng: &mut rand::XorShiftRng) -> Vec<Vec3> {
+    fn get_positions(&self, _rng: &mut ThreadRng) -> Vec<Vec3> {
         vec![self.position]
     }
     fn get_color(&self, direction: Vec3) -> Color {
@@ -35,7 +36,7 @@ impl Light for Spot {
             .abs()
             > self.angle
         {
-            BLACK
+            Color::BLACK
         } else {
             self.color_power / (0.7 * direction.length() + 1.5 * direction.squared_length())
         }

@@ -1,17 +1,19 @@
-use crate::raytracer::color::{Color, BLACK};
+use crate::raytracer::color::Color;
 use crate::raytracer::hittables::HitInfo;
 use crate::raytracer::materials::material::MaterialPrimitive;
 use crate::raytracer::ray::Ray;
 use crate::raytracer::scene::Scene;
+use crate::raytracer::utils::ZERO;
+use rand::prelude::ThreadRng;
 
 #[derive(Clone)]
 pub struct Diffuse {}
 
 impl MaterialPrimitive for Diffuse {
     fn get_color(
-        &self, hitinfo: &HitInfo, scene: &Scene, _max_iter: usize, rng: &mut rand::XorShiftRng,
+        &self, hitinfo: &HitInfo, scene: &Scene, _max_iter: usize, rng: &mut ThreadRng,
     ) -> Color {
-        let mut new_color = BLACK;
+        let mut new_color = Color::BLACK;
         let mut i = 0;
         for light in scene.lights.iter() {
             for position in light.get_positions(rng).iter() {
@@ -19,7 +21,7 @@ impl MaterialPrimitive for Diffuse {
                 let direction = *position - hitinfo.point;
                 if scene.launch_ray_min_dist(
                     &Ray {
-                        origin: hitinfo.point + 0.01 * direction,
+                        origin: hitinfo.point + ZERO * direction,
                         direction,
                     },
                     direction.length(),

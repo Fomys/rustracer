@@ -1,5 +1,5 @@
 use crate::raytracer::camera::Camera;
-use crate::raytracer::color::BLACK;
+use crate::raytracer::color::Color;
 use crate::raytracer::integrators::integrator::Integrator;
 use crate::raytracer::scene::Scene;
 
@@ -19,7 +19,7 @@ impl Integrator for SimpleIntegrator {
     fn preprocess(&mut self) {}
 
     fn render(&mut self, max_iteration: usize) {
-        let mut rng = rand::XorShiftRng::new_unseeded();
+        let mut rng = rand::thread_rng();
         let ray_per_pixel_count = self.camera.ray_per_pixels_count;
         let total = self.camera.tile_count.x * self.camera.tile_count.y;
         let mut finished = 0;
@@ -31,7 +31,7 @@ impl Integrator for SimpleIntegrator {
                 total
             );
             for pixel_index in 0..tile.size.x * tile.size.y {
-                let mut new_color = BLACK;
+                let mut new_color = Color::BLACK;
                 for ray_index in 0..ray_per_pixel_count {
                     new_color += self.scene.trace(
                         &tile.rays[pixel_index * ray_per_pixel_count + ray_index],

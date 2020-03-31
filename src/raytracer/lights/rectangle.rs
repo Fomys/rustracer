@@ -4,6 +4,7 @@ use crate::raytracer::color::Color;
 use crate::raytracer::lights::light::Light;
 use crate::raytracer::utils::Vec3;
 use crate::raytracer::utils::SOURCE_PER_SURFACE;
+use rand::prelude::ThreadRng;
 
 pub struct Rectangle {
     _color: Color,
@@ -28,11 +29,11 @@ impl Rectangle {
 }
 
 impl Light for Rectangle {
-    fn get_positions(&self, rng: &mut rand::XorShiftRng) -> Vec<Vec3> {
+    fn get_positions(&self, rng: &mut ThreadRng) -> Vec<Vec3> {
         let mut pos: Vec<Vec3> = vec![];
         for _ in 0..=SOURCE_PER_SURFACE {
             for _ in 0..=SOURCE_PER_SURFACE {
-                pos.push(self.origin + rng.next_f32() * self.dir1 + rng.next_f32() * self.dir2);
+                pos.push(self.origin + rng.gen::<f32>() * self.dir1 + rng.gen::<f32>() * self.dir2);
             }
         }
         pos
